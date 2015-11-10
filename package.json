@@ -2,7 +2,7 @@
   "name": "famous-places-api",
   "version": "0.1.0",
   "description": "Express based API for famous places",
-  "main": "app.js",
+  "main": "./build/app.js",
   "scripts": {
     "test": "mocha"
   },
