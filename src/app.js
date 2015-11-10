@@ -2,6 +2,11 @@ var express = require('express');
 var app = express();
 
 app.get('/', function (req, res) {
+  var dbConnector = DatabaseConnector();
+
+  dbConnector.query("SELECT * IN place");
+  dbConnector.query("SELECT * IN place WHERE ? == ? ", ['id', 1]);
+
   res.send('Hello World!');
 });
 
