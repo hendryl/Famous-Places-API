@@ -11,11 +11,7 @@ class DatabaseConnector {
     });
 
     var disconnect = function() {
-      connection.end(function(err) {
-        if (err) {
-          throw err;
-        }
-      });
+      connection.end();
     };
 
     this.query = function(query) {
