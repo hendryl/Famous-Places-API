@@ -1,22 +1,15 @@
-var databaseConnector = require('./src/service/databaseconnector.js');
-
 var express = require('express');
-var app = express();
 var bodyParser = require('body-parser');
 
+var app = express();
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
+app.use('/api', require('./controllers'));
 
 var port = process.env.PORT || 8080;
 
-var router = express.Router();
-
-router.get('/', function (req, res) {
-
-  res.json({message: 'hello world'});
+var server = app.listen(port, function () {
+  console.log('App listening at port %s', port);
 });
 
-app.use('/api', router);
-
-app.listen(port);
-console.log('Server started on port ' + port);
+module.exports = server;

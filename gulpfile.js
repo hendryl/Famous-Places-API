@@ -7,18 +7,26 @@ var wait = require('gulp-wait');
 var runSequence = require('run-sequence');
 var mocha = require('gulp-mocha');
 
+var sourceFiles = [
+  'app.js',
+  './controllers/*.js',
+  './helpers/*.js',
+  './models/*.js'
+];
+var testFiles = ['tests/*.js', 'tests/**/*.js'];
+
 gulp.task('jshint', function() {
-  gulp.src(['*.js', 'src/**/*.js'])
+  gulp.src(sourceFiles)
   .pipe(jshint())
   .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('watch', function() {
-  gulp.watch('./src/**/*.js', runSequence('jshint', 'test'));
+  gulp.watch(sourceFiles, runSequence('jshint', 'test'));
 });
 
 gulp.task('test', function() {
-  gulp.src(['test/*.js', 'test/**/*.js'], { read: false })
+  gulp.src(testFiles, { read: false })
   // wait until all jshint logs are printed
   .pipe(wait(500))
   .pipe(mocha({ reporter: 'spec'}))
