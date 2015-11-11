@@ -4,6 +4,7 @@
   "curly": true,
   "eqeqeq": true,
   "latedef": false,
+  "mocha": true,
   "noarg": true,
   "undef": true,
   "unused": "vars",

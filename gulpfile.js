@@ -11,7 +11,8 @@ var sourceFiles = [
   'app.js',
   './controllers/*.js',
   './helpers/*.js',
-  './models/*.js'
+  './models/*.js',
+  './tests/*.js'
 ];
 var testFiles = ['tests/*.js', 'tests/**/*.js'];
 
