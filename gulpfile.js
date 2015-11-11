@@ -19,6 +19,7 @@ gulp.task('watch', function() {
 
 gulp.task('test', function() {
   gulp.src(['test/*.js', 'test/**/*.js'], { read: false })
+  // wait until all jshint logs are printed
   .pipe(wait(500))
   .pipe(mocha({ reporter: 'spec'}))
   .on('error', util.log);
