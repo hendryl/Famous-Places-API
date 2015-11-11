@@ -1,21 +1,14 @@
-import DatabaseConnector from './database/connector';
+var databaseConnector = require('./src/service/databaseconnector.js');
 
 var express = require('express');
 var app = express();
 
 app.get('/', function (req, res) {
-  var dbConnector = new DatabaseConnector();
-
-  dbConnector.query("SELECT * FROM place");
 
   res.send("Hello World!");
 });
 
 app.get('/values', function (req, res) {
-  var dbConnector = new DatabaseConnector();
-
-  dbConnector.queryWithValues("SELECT * FROM place WHERE ? = ? ", ['id', 1]);
-
   res.send("Hello World 2!");
 });
 
