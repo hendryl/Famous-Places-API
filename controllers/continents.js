@@ -82,7 +82,7 @@ router.put('/:id', function(req, res) {
   })
   .catch(function(error) {
     res.status(500).send(error);
-  })
+  });
 });
 
 router.delete('/:id', function(req, res) {
@@ -95,7 +95,7 @@ router.delete('/:id', function(req, res) {
   })
   .catch(function(error) {
     res.status(500).send(error);
-  })
+  });
 });
 
 module.exports = router;
