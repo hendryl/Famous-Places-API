@@ -78,7 +78,11 @@ router.put('/:id', function(req, res) {
 
   db.query(query, values)
   .then(function(result) {
-    res.status(200).end();
+    if(result.rowCount === 0) {
+      res.status(404).send("Id not found");
+    } else {
+      res.status(200).end();
+    }
   })
   .catch(function(error) {
     res.status(500).send(error);
