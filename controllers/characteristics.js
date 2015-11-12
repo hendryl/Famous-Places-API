@@ -89,5 +89,17 @@ router.put('/:id', function(req, res) {
   });
 });
 
+router.delete('/:id', function(req, res) {
+  var query = "DELETE FROM characteristics WHERE characteristic_id=$1";
+  var values = [req.params.id];
+
+  db.query(query, values)
+  .then(function(result) {
+    res.status(204).end();
+  })
+  .catch(function(error) {
+    res.status(500).send(error);
+  });
+});
 
 module.exports = router;
