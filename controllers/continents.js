@@ -24,7 +24,7 @@ router.post('/', function(req, res) {
     return;
   }
 
-  var query = 'INSERT INTO continent ("name") VALUES ($1) RETURNING continent_id';
+  var query = 'INSERT INTO continents ("name") VALUES ($1) RETURNING continent_id';
   var values = [name];
 
   db.query(query, values)
@@ -47,7 +47,7 @@ router.use('/:id', function(req, res, next) {
 });
 
 router.get('/:id', function(req, res) {
-  var query = "SELECT * FROM continent WHERE continent_id = $1";
+  var query = "SELECT * FROM continents WHERE continent_id = $1";
   var values = [req.params.id];
 
   db.query(query, values)
@@ -57,6 +57,26 @@ router.get('/:id', function(req, res) {
   .catch(function(error) {
     res.status(500).send(error);
   });
+});
+
+router.put('/:id', function(req, res) {
+  var name = req.body.name;
+
+  if(!(_.isString(name))) {
+    res.status(400).send("Bad Request: no name parameter");
+    return;
+  }
+
+  var query = "UPDATE continents SET name = $1 WHERE continent_id = $2";
+  var values = [name, req.params.id];
+
+  db.query(query, values)
+  .then(function(result) {
+    res.status(200).end();
+  })
+  .catch(function(error) {
+    res.status(500).send(error);
+  })
 });
 
 module.exports = router;
