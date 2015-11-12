@@ -52,7 +52,13 @@ router.get('/:id', function(req, res) {
 
   db.query(query, values)
   .then(function(result) {
-    res.status(200).send(result.rows[0]);
+    var row = result.rows[0];
+
+    if(_.isEmpty(row)) {
+      res.status(404).end();
+    } else {
+      res.status(200).send(result.rows[0]);
+    }
   })
   .catch(function(error) {
     res.status(500).send(error);
