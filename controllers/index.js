@@ -3,7 +3,7 @@ var router = express.Router();
 
 // route definitions
 router.use('/continents', require('./continents'));
-router.us('/countries', require('./countries'));
+router.use('/countries', require('./countries'));
 
 router.get('/', function(req, res) {
   res.status(200).json({message: "This is the Famous Places API"});
