@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', function(req, res) {
-  var query = "SELECT * FROM continent";
+  var query = "SELECT * FROM continents";
 
   db.query(query)
   .then(function(result) {
