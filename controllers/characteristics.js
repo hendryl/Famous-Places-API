@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', function(req, res) {
-  var query = "SELECT * FROM continents";
+  var query = "SELECT * FROM characteristics";
 
   db.query(query)
   .then(function(result) {
@@ -24,7 +24,7 @@ router.post('/', function(req, res) {
     return;
   }
 
-  var query = 'INSERT INTO continents ("name") VALUES ($1) RETURNING continent_id';
+  var query = 'INSERT INTO characteristics ("name") VALUES ($1) RETURNING characteristic_id';
   var values = [name];
 
   db.query(query, values)
@@ -47,7 +47,7 @@ router.use('/:id', function(req, res, next) {
 });
 
 router.get('/:id', function(req, res) {
-  var query = "SELECT * FROM continents WHERE continent_id = $1";
+  var query = "SELECT * FROM characteristics WHERE characteristic_id = $1";
   var values = [req.params.id];
 
   db.query(query, values)
@@ -73,7 +73,7 @@ router.put('/:id', function(req, res) {
     return;
   }
 
-  var query = "UPDATE continents SET name = $1 WHERE continent_id = $2";
+  var query = "UPDATE characteristics SET name = $1 WHERE characteristic_id = $2";
   var values = [name, req.params.id];
 
   db.query(query, values)
@@ -90,7 +90,7 @@ router.put('/:id', function(req, res) {
 });
 
 router.delete('/:id', function(req, res) {
-  var query = "DELETE FROM continents WHERE continent_id=$1";
+  var query = "DELETE FROM characteristics WHERE characteristic_id=$1";
   var values = [req.params.id];
 
   db.query(query, values)
