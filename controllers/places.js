@@ -1,17 +1,10 @@
-var db = require('../helpers/db');
 var _ = require('underscore');
-
 var express = require('express');
-var router = express.Router();
 
-var isBadRequest = function(values) {
-  for(var value in values) {
-    if (_.isUndefined(values[value])) {
-      return true;
-    }
-  }
-  return false;
-};
+var db = require('../helpers/db');
+var isBadRequest = require('../helpers/request-checker');
+
+var router = express.Router();
 
 var createTagQuery = function(id, tags) {
   var query = 'INSERT INTO tags ("place_id", "characteristic_id") VALUES ';
@@ -42,17 +35,16 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-  var body = req.body;
   var values = [
-    body.country_id,
-    body.name,
-    body.description,
-    body.image,
-    body.latitude,
-    body.longitude,
-    body.link,
-    body.enabled,
-    body.tags
+    req.body.country_id,
+    req.body.name,
+    req.body.description,
+    req.body.image,
+    req.body.latitude,
+    req.body.longitude,
+    req.body.link,
+    req.body.enabled,
+    req.body.tags
   ];
 
   if(isBadRequest(values)) {

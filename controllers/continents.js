@@ -1,7 +1,8 @@
-var db = require('../helpers/db');
 var _ = require('underscore');
-
 var express = require('express');
+
+var db = require('../helpers/db');
+
 var router = express.Router();
 
 router.get('/', function(req, res) {
