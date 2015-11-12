@@ -5,7 +5,7 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/', function(req, res) {
-  var query = "SELECT country_id, countries.name, continents.name AS continent, countries.image FROM countries, continents WHERE countries.continent_id = continents.continent_id ORDER BY country_id ASC";
+  var query = "SELECT country_id, countries.name, continents.name AS continent, countries.image FROM countries LEFT JOIN continents ON continents.continent_id = countries.continent_id ORDER BY country_id ASC";
 
   db.query(query)
   .then(function(result) {
