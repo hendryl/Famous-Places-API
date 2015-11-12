@@ -1,4 +1,4 @@
-var expect = require("expect.js");
+//var expect = require("expect.js");
 var request = require("supertest");
 
 describe('Loading express', function() {

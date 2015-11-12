@@ -22,10 +22,6 @@ gulp.task('jshint', function() {
   .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('watch', function() {
-  gulp.watch(sourceFiles, runSequence('jshint', 'test'));
-});
-
 gulp.task('test', function() {
   gulp.src(testFiles, { read: false })
   // wait until all jshint logs are printed
@@ -36,4 +32,8 @@ gulp.task('test', function() {
 
 gulp.task('default', function(callback) {
   runSequence('jshint', 'test', callback);
+});
+
+gulp.task('watch', function() {
+  gulp.watch(sourceFiles, ['default']);
 });
