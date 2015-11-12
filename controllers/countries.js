@@ -67,4 +67,28 @@ router.get('/:id', function(req, res) {
   });
 });
 
+router.put('/:id', function(req, res) {
+  var name = req.body.name;
+  var continent_id = req.body.continent_id;
+  var image = req.body.image;
+
+  var isBadRequest = _.isUndefined(name) || _.isUndefined(continent_id) || _.isUndefined(image);
+
+  if(isBadRequest) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
+  var query = "UPDATE countries SET name = $1, continent_id = $2, image = $3 WHERE country_id = $4";
+  var values = [name, continent_id, image, req.params.id];
+
+  db.query(query, values)
+  .then(function(result) {
+    res.status(200).end();
+  })
+  .catch(function(error) {
+    res.status(500).send(error);
+  });
+});
+
 module.exports = router;
