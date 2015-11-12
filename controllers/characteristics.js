@@ -16,4 +16,24 @@ router.get('/', function(req, res) {
   });
 });
 
+router.post('/', function(req, res) {
+  var name = req.body.name;
+
+  if(!(_.isString(name))) {
+    res.status(400).send("Bad Request: no name parameter");
+    return;
+  }
+
+  var query = 'INSERT INTO characteristics ("name") VALUES ($1) RETURNING characteristic_id';
+  var values = [name];
+
+  db.query(query, values)
+  .then(function(result) {
+    res.status(201).send(result.rows[0]);
+  })
+  .catch(function(error) {
+    res.status(500).send(error);
+  });
+});
+
 module.exports = router;
