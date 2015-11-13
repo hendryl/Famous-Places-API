@@ -58,7 +58,7 @@ router.get('/:id', function(req, res) {
     if(_.isEmpty(row)) {
       res.status(404).end();
     } else {
-      res.status(200).send(result.rows[0]);
+      res.status(200).send(row);
     }
   })
   .catch(function(error) {
