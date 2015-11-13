@@ -1,7 +1,9 @@
-var db = require('../helpers/db');
 var _ = require('underscore');
-
 var express = require('express');
+
+var db = require('../helpers/db');
+var isBadRequest = require('../helpers/request-checker');
+
 var router = express.Router();
 
 router.get('/', function(req, res) {
@@ -17,17 +19,18 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-  var name = req.body.name;
-  var continent_id = Number(req.body.continent_id);
-  var image = _.isString(req.body.image) ? req.body.image : null;
+  var values = [
+    req.body.name,
+    req.body.continent_id,
+    req.body.image
+  ];
 
-  if(!(_.isString(name))) {
+  if(isBadRequest(values)) {
     res.status(400).send("Bad Request");
     return;
   }
 
-  var query = 'INSERT INTO countries ("name","continent_id","image")  VALUES ($1, $2, $3) RETURNING country_id';
-  var values = [name, continent_id, image];
+  var query = 'INSERT INTO countries ("name","continent_id","image") VALUES ($1, $2, $3) RETURNING country_id';
 
   db.query(query, values)
   .then(function(result) {
@@ -59,7 +62,7 @@ router.get('/:id', function(req, res) {
     if(_.isEmpty(row)) {
       res.status(404).end();
     } else {
-      res.status(200).send(result.rows[0]);
+      res.status(200).send(row);
     }
   })
   .catch(function(error) {
@@ -68,19 +71,18 @@ router.get('/:id', function(req, res) {
 });
 
 router.put('/:id', function(req, res) {
-  var name = req.body.name;
-  var continent_id = req.body.continent_id;
-  var image = req.body.image;
+  var values = [name, continent_id, image, req.params.id];
 
-  var isBadRequest = _.isUndefined(name) || _.isUndefined(continent_id) || _.isUndefined(image);
-
-  if(isBadRequest) {
+  if(isBadRequest(req.body)) {
     res.status(400).send("Bad Request");
     return;
   }
 
+  var name = req.body.name;
+  var continent_id = req.body.continent_id;
+  var image = req.body.image;
+
   var query = "UPDATE countries SET name = $1, continent_id = $2, image = $3 WHERE country_id = $4";
-  var values = [name, continent_id, image, req.params.id];
 
   db.query(query, values)
   .then(function(result) {

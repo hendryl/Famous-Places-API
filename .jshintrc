@@ -12,6 +12,7 @@
   "globals": {
     "require": false,
     "console": false,
-    "module": false
+    "module": false,
+    "Promise": false
   }
 }

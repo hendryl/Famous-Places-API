@@ -35,5 +35,5 @@ gulp.task('default', function(callback) {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(sourceFiles, ['default']);
+  gulp.watch(sourceFiles, ['jshint']);
 });
