@@ -7,6 +7,10 @@ var isBadRequest = require('../helpers/request-checker');
 var router = express.Router();
 
 var createTagQuery = function(id, tags) {
+  if (tags.length === 0) {
+    return "";
+  }
+
   var query = 'INSERT INTO tags ("place_id", "characteristic_id") VALUES ';
 
   for (var tag in tags) {
@@ -67,6 +71,51 @@ router.post('/', function(req, res) {
         .catch(function(error) {
           res.status(500).send(error);
         });
+    })
+    .catch(function(error) {
+      res.status(500).send(error);
+    });
+});
+
+router.use('/:id', function(req, res, next) {
+  var id = Number(req.params.id);
+
+  if (_.isNumber(id)) {
+    next();
+  } else {
+    res.status(400).send("Value should be a number");
+  }
+});
+
+router.get('/:id', function(req, res) {
+  var query = "SELECT * FROM places WHERE place_id = $1";
+  var values = [req.params.id];
+
+  db.query(query, values)
+    .then(function(result) {
+      var row = result.rows[0];
+
+      if (_.isEmpty(row)) {
+        res.status(404).end();
+      } else {
+        var tagQuery = "SELECT characteristic_id FROM tags WHERE place_id = $1";
+
+        db.query(tagQuery, values)
+        .then(function(result) {
+
+          var tags = [];
+
+          _.each(result.rows, function(tag) {
+            tags.push(tag.characteristic_id);
+          });
+
+          row.tags = tags;
+          res.status(200).send(row);
+        })
+        .catch(function(error) {
+          res.status(500).send(error);
+        });
+      }
     })
     .catch(function(error) {
       res.status(500).send(error);
