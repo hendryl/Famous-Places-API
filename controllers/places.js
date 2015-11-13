@@ -187,4 +187,19 @@ router.put('/:id', function(req, res) {
   });
 });
 
+router.delete('/:id',function(req, res) {
+  var query = "BEGIN; DELETE FROM tags WHERE place_id = $1; DELETE FROM places WHERE place_id = $1; COMMIT;";
+
+  query = query.split('$1').join(req.params.id);
+  
+  db.query(query)
+  .then(function(result) {
+    res.status(204).end();
+  })
+  .catch(function(error) {
+    console.log(error);
+    res.status(500).send(error);
+  });
+});
+
 module.exports = router;
