@@ -110,6 +110,11 @@ router.put('/:id', function(req, res) {
         .then(function(result) {
           tagQuery = createTagQuery(id, tags);
 
+          if (tagQuery === "") {
+            resolve("Done updating tags");
+            return;
+          }
+
           db.query(tagQuery)
             .then(function(result) {
               resolve("Done updating tags");
@@ -121,17 +126,15 @@ router.put('/:id', function(req, res) {
   });
 
   tagPromise.then(function(result) {
-    console.log(result);
-
-    var query = "UPDATE places SET name = $1, description = $2, image = $3, latitude = $4, longitude = $5, link = $6, enabled = $7 WHERE place_id = " + id ;
+    var query = "UPDATE places SET name = $1, description = $2, image = $3, latitude = $4, longitude = $5, link = $6, enabled = $7 WHERE place_id = " + id;
 
     db.query(query, values)
-    .then(function(result) {
-      res.status(200).end();
-    })
-    .catch(function(error) {
-      res.status(500).send(error);
-    });
+      .then(function(result) {
+        res.status(200).end();
+      })
+      .catch(function(error) {
+        res.status(500).send(error);
+      });
   });
 });
 
