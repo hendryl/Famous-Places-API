@@ -22,27 +22,6 @@ var createTagQuery = function(id, tags) {
   return query;
 };
 
-var updateTags = function(id, tags) {
-  var tagQuery = 'DELETE FROM tags WHERE tags.place_id = $1';
-  var tagValues = [id];
-
-  db.query(tagQuery, tagValues)
-    .then(function(result) {
-      tagQuery = createTagQuery(id, tags);
-
-      db.query(tagQuery)
-        .then(function(result) {
-          return true;
-        })
-        .catch(function(error) {
-          return error;
-        });
-    })
-    .catch(function(error) {
-      return error;
-    });
-};
-
 router.get('/', function(req, res) {
   var query = "SELECT place_id, places.name, countries.name AS country, description, places.image, latitude, longitude, link, enabled FROM places LEFT JOIN countries ON countries.country_id = places.country_id ORDER BY place_id ASC";
 
@@ -115,18 +94,29 @@ router.put('/:id', function(req, res) {
   var shouldUpdateTags = !(_.isUndefined(tags));
 
   var tagPromise = new Promise(function(resolve, reject) {
-    if (shouldUpdateTags) {
-      var tagResult = updateTags(id, tags);
 
-      if (tagResult === true) {
-        resolve("Done updating tags");
-      } else {
-        res.status(500).send(tagResult);
-        reject("Failed updating tags");
-        return;
-      }
-    } else {
+    if (!shouldUpdateTags) {
       resolve("Not updating tags");
+    } else {
+      var tagQuery = 'DELETE FROM tags WHERE tags.place_id = $1';
+      var tagValues = [id];
+
+      var errorCallback = function(error) {
+        res.status(500).send(error);
+        reject(error);
+      };
+
+      db.query(tagQuery, tagValues)
+        .then(function(result) {
+          tagQuery = createTagQuery(id, tags);
+
+          db.query(tagQuery)
+            .then(function(result) {
+              resolve("Done updating tags");
+            })
+            .catch(errorCallback);
+        })
+        .catch(errorCallback);
     }
   });
 
