@@ -71,8 +71,6 @@ router.get('/:id', function(req, res) {
 });
 
 router.put('/:id', function(req, res) {
-  var values = [name, continent_id, image, req.params.id];
-
   if(isBadRequest(req.body)) {
     res.status(400).send("Bad Request");
     return;
@@ -81,6 +79,7 @@ router.put('/:id', function(req, res) {
   var name = req.body.name;
   var continent_id = req.body.continent_id;
   var image = req.body.image;
+  var values = [name, continent_id, image, req.params.id];
 
   var query = "UPDATE countries SET name = $1, continent_id = $2, image = $3 WHERE country_id = $4";
 
