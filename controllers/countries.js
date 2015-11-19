@@ -76,8 +76,9 @@ router.put('/:id', function(req, res) {
     body.name,
     body.continent_id,
     body.image,
-    body.req.params.id
+    req.params.id
   ];
+  console.log(values);
 
   if (isBadRequest(values)) {
     res.status(400).send("Bad Request");
@@ -95,6 +96,7 @@ router.put('/:id', function(req, res) {
       }
     })
     .catch(function(error) {
+      console.log(error);
       res.status(500).send(error);
     });
 });
