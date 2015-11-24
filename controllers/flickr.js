@@ -10,10 +10,6 @@ var photoURL = "https://farm$1.staticflickr.com/$2/$3_$4_z.jpg";
 var router = express.Router();
 
 router.get('/photos', function(req, res) {
-
-  res.set('api_key', flickrOptions.api_key);
-  res.set('secret', flickrOptions.secret);
-
   var query = req.query.q;
   var request = {
     content_type: 1,
@@ -50,6 +46,23 @@ router.get('/photos', function(req, res) {
       });
 
       res.status(200).send(response);
+    });
+  });
+});
+
+router.get('/photos/:id', function(req, res) {
+  Flickr.tokenOnly(flickrOptions, function(error, flickr) {
+
+    if (error) {
+      error = "error: " + error;
+      console.log(error);
+      res.error(error);
+      return;
+    }
+
+    var query = {photo_id: req.params.id};
+    flickr.photos.getInfo(query, function(err, result) {
+      res.status(200).send(result);
     });
   });
 });
