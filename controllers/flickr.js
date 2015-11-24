@@ -55,7 +55,6 @@ router.get('/photos/:id', function(req, res) {
 
     if (error) {
       error = "error: " + error;
-      console.log(error);
       res.error(error);
       return;
     }
