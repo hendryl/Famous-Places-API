@@ -27,7 +27,7 @@ var createTagQuery = function(id, tags) {
 };
 
 router.get('/', function(req, res) {
-  var query = "SELECT place_id, places.name, countries.name AS country, description, places.image, latitude, longitude, link, enabled FROM places LEFT JOIN countries ON countries.country_id = places.country_id ORDER BY place_id ASC";
+  var query = "SELECT place_id, places.name, countries.name AS country, description, places.photo_id, latitude, longitude, link, enabled FROM places LEFT JOIN countries ON countries.country_id = places.country_id ORDER BY place_id ASC";
 
   db.query(query)
     .then(function(result) {
@@ -43,7 +43,7 @@ router.post('/', function(req, res) {
     req.body.country_id,
     req.body.name,
     req.body.description,
-    req.body.image,
+    req.body.photo_id,
     req.body.latitude,
     req.body.longitude,
     req.body.link,
@@ -56,7 +56,7 @@ router.post('/', function(req, res) {
     return;
   }
 
-  var query = 'INSERT INTO places ("country_id", "name", "description", "image", "latitude", "longitude", "link", "enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING place_id';
+  var query = 'INSERT INTO places ("country_id", "name", "description", "photo_id", "latitude", "longitude", "link", "enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING place_id';
 
   db.query(query, _.initial(values))
     .then(function(result) {
@@ -126,7 +126,7 @@ router.put('/:id', function(req, res) {
   var values = [
     req.body.name,
     req.body.description,
-    req.body.image,
+    req.body.photo_id,
     req.body.latitude,
     req.body.longitude,
     req.body.link,
@@ -175,7 +175,7 @@ router.put('/:id', function(req, res) {
   });
 
   tagPromise.then(function(result) {
-    var query = "UPDATE places SET name = $1, description = $2, image = $3, latitude = $4, longitude = $5, link = $6, enabled = $7 WHERE place_id = " + id;
+    var query = "UPDATE places SET name = $1, description = $2, photo_id = $3, latitude = $4, longitude = $5, link = $6, enabled = $7 WHERE place_id = " + id;
 
     db.query(query, values)
       .then(function(result) {
@@ -191,7 +191,7 @@ router.delete('/:id',function(req, res) {
   var query = "BEGIN; DELETE FROM tags WHERE place_id = $1; DELETE FROM places WHERE place_id = $1; COMMIT;";
 
   query = query.split('$1').join(req.params.id);
-  
+
   db.query(query)
   .then(function(result) {
     res.status(204).end();
