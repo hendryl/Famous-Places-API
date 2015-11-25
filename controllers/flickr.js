@@ -11,11 +11,18 @@ var router = express.Router();
 
 router.get('/photos', function(req, res) {
   var query = req.query.q;
+  var size = req.query.size;
+
+  size = size > 500 ? 500 : size;
+  size = size < 1 ? 1 : size;
+
   var request = {
     content_type: 1,
     safe_search: 1,
     sort: 'relevance',
-    text: query
+    media: "photos",
+    text: query,
+    per_page: size
   };
 
   Flickr.tokenOnly(flickrOptions, function(error, flickr) {
