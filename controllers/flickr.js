@@ -73,7 +73,7 @@ router.get('/photos/:id', function(req, res) {
 
       if(type === 'cms') {
         var url = photoURL;
-        var data = result.data;
+        var data = result.photo;
         url = url.replace('$1', data.farm);
         url = url.replace('$2', data.server);
         url = url.replace('$3', data.id);
