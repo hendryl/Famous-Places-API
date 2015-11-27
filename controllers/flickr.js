@@ -11,10 +11,10 @@ var router = express.Router();
 
 router.get('/photos', function(req, res) {
   var query = req.query.q;
-  var size = req.query.size;
+  var count = req.query.count;
 
-  size = size > 500 ? 500 : size;
-  size = size < 1 ? 1 : size;
+  count = count > 500 ? 500 : count;
+  count = count < 1 ? 1 : count;
 
   var request = {
     content_type: 1,
@@ -22,7 +22,7 @@ router.get('/photos', function(req, res) {
     sort: 'relevance',
     media: "photos",
     text: query,
-    per_page: size
+    per_page: count
   };
 
   Flickr.tokenOnly(flickrOptions, function(error, flickr) {
@@ -60,6 +60,8 @@ router.get('/photos', function(req, res) {
 router.get('/photos/:id', function(req, res) {
   Flickr.tokenOnly(flickrOptions, function(error, flickr) {
 
+    var type = req.query.type;
+
     if (error) {
       error = "error: " + error;
       res.error(error);
@@ -68,6 +70,24 @@ router.get('/photos/:id', function(req, res) {
 
     var query = {photo_id: req.params.id};
     flickr.photos.getInfo(query, function(err, result) {
+
+      if(type === 'cms') {
+        var url = photoURL;
+        var data = result.data;
+        url = url.replace('$1', data.farm);
+        url = url.replace('$2', data.server);
+        url = url.replace('$3', data.id);
+        url = url.replace('$4', data.secret);
+
+        var photo = {
+          id: data.id,
+          title: data.title._content,
+          url: url
+        };
+
+        result = photo;
+      }
+
       res.status(200).send(result);
     });
   });
