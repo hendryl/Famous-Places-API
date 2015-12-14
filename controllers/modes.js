@@ -6,6 +6,41 @@ var isBadRequest = require('../helpers/request-checker');
 
 var router = express.Router();
 
+var createQuery = function(table, link, id, values) {
+  if (values.length === 0) {
+    return "";
+  }
+
+  var query = 'INSERT INTO ' + table + ' ("mode_id", "' + link + '") VALUES ';
+
+  for (var value in values) {
+    query += ('(' + id + ', ' + values[value] + ')');
+
+    if (values[value] === _.last(values)) {
+      query += ';';
+    } else {
+      query += ', ';
+    }
+  }
+
+  return query;
+};
+
+var createCountryLinks = function(id, values) {
+  var query = createQuery('mode_country', 'country_id', id, values);
+  return db.query(query);
+};
+
+var createContinentLinks = function(id, values) {
+  var query = createQuery('mode_continent', 'continent_id', id, values);
+  return db.query(query);
+};
+
+var createCharacteristicLinks = function(id, values) {
+  var query = createQuery('mode_characteristic', 'characteristic_id', id, values);
+  return db.query(query);
+};
+
 router.get('/', function(req, res) {
   var query = "SELECT * FROM modes";
 
@@ -14,6 +49,56 @@ router.get('/', function(req, res) {
       res.status(200).send(result.rows);
     })
     .catch(function(error) {
+      res.status(500).send(error);
+    });
+});
+
+router.post('/', function(req, res) {
+  var body = req.body;
+  var values = [
+    body.name,
+    body.enabled,
+    body.image,
+    body.description,
+    body.countries,
+    body.continents,
+    body.characteristics,
+  ];
+
+  if(isBadRequest(values)) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
+  var mainQuery = 'INSERT INTO modes ("name", "enabled") VALUES($1, $2) RETURNING mode_id';
+  values = values.slice(0, 2);
+
+  db.query(mainQuery, values)
+    .then(function(result) {
+      console.log("main query successful");
+      var row = result.rows[0];
+      var id = row.mode_id;
+      var promises = [];
+      promises.push(createCountryLinks(id, body.countries));
+      console.log("Success creating country link query");
+      promises.push(createContinentLinks(id, body.continents));
+      console.log("Success creating continent link query");
+      promises.push(createCharacteristicLinks(id, body.characteristics));
+      console.log("Success creating all link queries");
+      Promise.all(promises)
+      .then(function(result) {
+        console.log("Successfully added rows for game mode");
+        res.status(200).send(row);
+      })
+      .catch(function(error) {
+        console.log("error at link queries");
+        console.log(error);
+        res.status(500).send(error);
+      });
+    })
+    .catch(function(error) {
+      console.log("error at first query");
+      console.log(error);
       res.status(500).send(error);
     });
 });
