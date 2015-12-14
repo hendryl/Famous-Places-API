@@ -41,6 +41,33 @@ var createCharacteristicLinks = function(id, values) {
   return db.query(query);
 };
 
+var parseCountryData = function(values) {
+  var countries = [];
+  _.each(values, function(value) {
+    countries.push(value.country_id);
+  });
+
+  return countries;
+};
+
+var parseContinentData = function(values) {
+  var continents = [];
+  _.each(values, function(value) {
+    continents.push(value.continent_id);
+  });
+
+  return continents;
+};
+
+var parseCharacteristicData = function(values) {
+  var characteristics = [];
+  _.each(values, function(value) {
+    characteristics.push(value.characteristic_id);
+  });
+
+  return characteristics;
+};
+
 router.get('/', function(req, res) {
   var query = "SELECT * FROM modes";
 
@@ -115,7 +142,9 @@ router.use('/:id', function(req, res, next) {
 
 router.get('/:id', function(req, res) {
   var query = "SELECT * FROM modes WHERE mode_id = $1";
+
   var values = [req.params.id];
+
 
   db.query(query, values)
     .then(function(result) {
@@ -123,9 +152,28 @@ router.get('/:id', function(req, res) {
 
       if (_.isEmpty(row)) {
         res.status(404).end();
-      } else {
-        res.status(200).send(row);
+        return;
       }
+
+      var countryQuery = query.replace("modes", "mode_country");
+      var continentQuery = query.replace("modes", "mode_continent");
+      var characteristicQuery = query.replace("modes", "mode_characteristic");
+
+      var promises = [];
+      promises.push(db.query(countryQuery, values));
+      promises.push(db.query(continentQuery, values));
+      promises.push(db.query(characteristicQuery, values));
+
+      Promise.all(promises).then(function(linkResults) {
+        row.countries = parseCountryData(linkResults[0].rows);
+        row.continents = parseContinentData(linkResults[1].rows);
+        row.characteristics = parseCharacteristicData(linkResults[2].rows);
+
+        res.status(200).send(row);
+      })
+      .catch(function(error) {
+        res.status(500).send(error);
+      });
     })
     .catch(function(error) {
       res.status(500).send(error);
