@@ -26,6 +26,7 @@ router.post('/', function(req, res) {
     body.enabled,
     body.image,
     body.description,
+    body.music,
     body.countries,
     body.continents,
     body.characteristics,
@@ -36,8 +37,8 @@ router.post('/', function(req, res) {
     return;
   }
 
-  var mainQuery = 'INSERT INTO modes ("name", "enabled", "image", "description") VALUES($1, $2, $3, $4) RETURNING mode_id';
-  values = values.slice(0, 4);
+  var mainQuery = 'INSERT INTO modes ("name", "enabled", "image", "description", "music") VALUES($1, $2, $3, $4, $5) RETURNING mode_id';
+  values = values.slice(0, 5);
 
   db.query(mainQuery, values)
     .then(function(result) {
@@ -126,6 +127,7 @@ router.put('/:id', function(req, res) {
     body.enabled,
     body.image,
     body.description,
+    body.music,
     body.countries,
     body.continents,
     body.characteristics,
@@ -136,8 +138,8 @@ router.put('/:id', function(req, res) {
     return;
   }
 
-  var mainQuery = 'UPDATE modes SET "name" = $1, "enabled" = $2, "image" = $3, "description" = $4 WHERE mode_id = ' + id;
-  values = values.slice(0, 4);
+  var mainQuery = 'UPDATE modes SET "name" = $1, "enabled" = $2, "image" = $3, "description" = $4, "music" = $5 WHERE mode_id = ' + id;
+  values = values.slice(0, 5);
 
   db.query(mainQuery, values)
   .then(function(result) {
