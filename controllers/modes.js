@@ -3,43 +3,9 @@ var express = require('express');
 
 var db = require('../helpers/db');
 var isBadRequest = require('../helpers/request-checker');
+var utils = require('../helpers/mode-utils');
 
 var router = express.Router();
-
-var createQuery = function(table, link, id, values) {
-  if (values.length === 0) {
-    return "";
-  }
-
-  var query = 'INSERT INTO ' + table + ' ("mode_id", "' + link + '") VALUES ';
-
-  for (var value in values) {
-    query += ('(' + id + ', ' + values[value] + ')');
-
-    if (values[value] === _.last(values)) {
-      query += ';';
-    } else {
-      query += ', ';
-    }
-  }
-
-  return query;
-};
-
-var createCountryLinks = function(id, values) {
-  var query = createQuery('mode_country', 'country_id', id, values);
-  return db.query(query);
-};
-
-var createContinentLinks = function(id, values) {
-  var query = createQuery('mode_continent', 'continent_id', id, values);
-  return db.query(query);
-};
-
-var createCharacteristicLinks = function(id, values) {
-  var query = createQuery('mode_characteristic', 'characteristic_id', id, values);
-  return db.query(query);
-};
 
 var parseCountryData = function(values) {
   var countries = [];
@@ -97,8 +63,8 @@ router.post('/', function(req, res) {
     return;
   }
 
-  var mainQuery = 'INSERT INTO modes ("name", "enabled") VALUES($1, $2) RETURNING mode_id';
-  values = values.slice(0, 2);
+  var mainQuery = 'INSERT INTO modes ("name", "enabled", "image", "description") VALUES($1, $2, $3, $4) RETURNING mode_id';
+  values = values.slice(0, 4);
 
   db.query(mainQuery, values)
     .then(function(result) {
@@ -106,11 +72,11 @@ router.post('/', function(req, res) {
       var row = result.rows[0];
       var id = row.mode_id;
       var promises = [];
-      promises.push(createCountryLinks(id, body.countries));
+      promises.push(utils.createCountryLinks(id, body.countries));
       console.log("Success creating country link query");
-      promises.push(createContinentLinks(id, body.continents));
+      promises.push(utils.createContinentLinks(id, body.continents));
       console.log("Success creating continent link query");
-      promises.push(createCharacteristicLinks(id, body.characteristics));
+      promises.push(utils.createCharacteristicLinks(id, body.characteristics));
       console.log("Success creating all link queries");
       Promise.all(promises)
       .then(function(result) {
