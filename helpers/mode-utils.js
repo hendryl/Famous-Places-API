@@ -5,9 +5,6 @@ module.exports = {
   createCountryLinks: createCountryLinks,
   createContinentLinks: createContinentLinks,
   createCharacteristicLinks: createCharacteristicLinks,
-  needUpdateCountries: needUpdateCountries,
-  needUpdateContinents: needUpdateContinents,
-  needUpdateCharacteristics: needUpdateCharacteristics,
   updateCountries: updateCountries,
   updateContinents: updateContinents,
   updateCharacteristics: updateCharacteristics,
@@ -48,26 +45,47 @@ function createCharacteristicLinks(id, values) {
   return db.query(query);
 }
 
-function needUpdateCountries(values) {
-  return false;
+function updateCountries(id, values) {
+  return new Promise(function(resolve, reject) {
+    var query = 'DELETE FROM mode_country WHERE mode_id = ' + id;
+
+    db.query(query)
+    .then(function(result) {
+      var createPromise = createCountryLinks(id, values);
+      resolve(createPromise);
+    })
+    .catch(function(error) {
+      reject(error);
+    });
+  });
 }
 
-function needUpdateContinents(values) {
-  return false;
+function updateContinents(id, values) {
+  return new Promise(function(resolve, reject) {
+    var query = 'DELETE FROM mode_continent WHERE mode_id = ' + id;
+
+    db.query(query)
+    .then(function(result) {
+      var createPromise = createContinentLinks(id, values);
+      resolve(createPromise);
+    })
+    .catch(function(error) {
+      reject(error);
+    });
+  });
 }
 
-function needUpdateCharacteristics(values) {
-  return false;
-}
+function updateCharacteristics(id, values) {
+  return new Promise(function(resolve, reject) {
+    var query = 'DELETE FROM mode_characteristic WHERE mode_id = ' + id;
 
-function updateCountries(values) {
-  return;
-}
-
-function updateContinents(values) {
-  return;
-}
-
-function updateCharacteristics(values) {
-  return;
+    db.query(query)
+    .then(function(result) {
+      var createPromise = createCharacteristicLinks(id, values);
+      resolve(createPromise);
+    })
+    .catch(function(error) {
+      reject(error);
+    });
+  });
 }

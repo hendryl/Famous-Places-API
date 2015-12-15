@@ -146,6 +146,55 @@ router.get('/:id', function(req, res) {
     });
 });
 
+router.put('/:id', function(req, res) {
+  var body = req.body;
+  var id = req.params.id;
+
+  var values = [
+    body.name,
+    body.enabled,
+    body.image,
+    body.description,
+    body.countries,
+    body.continents,
+    body.characteristics,
+  ];
+
+  if(isBadRequest(values)) {
+    res.status(400).send("Bad Request");
+    return;
+  }
+
+  var mainQuery = 'UPDATE modes SET "name" = $1, "enabled" = $2, "image" = $3, "description" = $4 WHERE mode_id = ' + id;
+  values = values.slice(0, 4);
+
+  db.query(mainQuery, values)
+  .then(function(result) {
+    console.log("main query successful");
+
+    var promises = [];
+
+    promises.push(utils.updateCountries(id, body.countries));
+    promises.push(utils.updateContinents(id, body.continents));
+    promises.push(utils.updateCharacteristics(id, body.characteristics));
+
+    Promise.all(promises)
+    .then(function(linkResults) {
+      res.status(200).end();
+    })
+    .catch(function(error) {
+      console.log("Failed at link queries");
+      console.log(error);
+      res.status(500).send(error);
+    });
+  })
+  .catch(function(error) {
+    console.log("Failed at main query");
+    console.log(error);
+    res.status(500).send(error);
+  });
+});
+
 router.delete('/:id',function(req, res) {
   var query = "BEGIN; DELETE FROM modes WHERE mode_id = $1; COMMIT;";
 
