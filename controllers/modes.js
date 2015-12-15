@@ -7,33 +7,6 @@ var utils = require('../helpers/mode-utils');
 
 var router = express.Router();
 
-var parseCountryData = function(values) {
-  var countries = [];
-  _.each(values, function(value) {
-    countries.push(value.country_id);
-  });
-
-  return countries;
-};
-
-var parseContinentData = function(values) {
-  var continents = [];
-  _.each(values, function(value) {
-    continents.push(value.continent_id);
-  });
-
-  return continents;
-};
-
-var parseCharacteristicData = function(values) {
-  var characteristics = [];
-  _.each(values, function(value) {
-    characteristics.push(value.characteristic_id);
-  });
-
-  return characteristics;
-};
-
 router.get('/', function(req, res) {
   var query = "SELECT * FROM modes";
 
@@ -73,11 +46,9 @@ router.post('/', function(req, res) {
       var id = row.mode_id;
       var promises = [];
       promises.push(utils.createCountryLinks(id, body.countries));
-      console.log("Success creating country link query");
       promises.push(utils.createContinentLinks(id, body.continents));
-      console.log("Success creating continent link query");
       promises.push(utils.createCharacteristicLinks(id, body.characteristics));
-      console.log("Success creating all link queries");
+
       Promise.all(promises)
       .then(function(result) {
         console.log("Successfully added rows for game mode");
@@ -131,9 +102,9 @@ router.get('/:id', function(req, res) {
       promises.push(db.query(characteristicQuery, values));
 
       Promise.all(promises).then(function(linkResults) {
-        row.countries = parseCountryData(linkResults[0].rows);
-        row.continents = parseContinentData(linkResults[1].rows);
-        row.characteristics = parseCharacteristicData(linkResults[2].rows);
+        row.countries = utils.parseCountryData(linkResults[0].rows);
+        row.continents = utils.parseContinentData(linkResults[1].rows);
+        row.characteristics = utils.parseCharacteristicData(linkResults[2].rows);
 
         res.status(200).send(row);
       })

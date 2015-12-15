@@ -5,6 +5,9 @@ module.exports = {
   createCountryLinks: createCountryLinks,
   createContinentLinks: createContinentLinks,
   createCharacteristicLinks: createCharacteristicLinks,
+  parseCountryData: parseCountryData,
+  parseContinentData: parseContinentData,
+  parseCharacteristicData: parseCharacteristicData,
   updateCountries: updateCountries,
   updateContinents: updateContinents,
   updateCharacteristics: updateCharacteristics,
@@ -43,6 +46,33 @@ function createContinentLinks(id, values) {
 function createCharacteristicLinks(id, values) {
   var query = createQuery('mode_characteristic', 'characteristic_id', id, values);
   return db.query(query);
+}
+
+function parseCountryData (values) {
+  var countries = [];
+  _.each(values, function(value) {
+    countries.push(value.country_id);
+  });
+
+  return countries;
+}
+
+function parseContinentData(values) {
+  var continents = [];
+  _.each(values, function(value) {
+    continents.push(value.continent_id);
+  });
+
+  return continents;
+}
+
+function parseCharacteristicData(values) {
+  var characteristics = [];
+  _.each(values, function(value) {
+    characteristics.push(value.characteristic_id);
+  });
+
+  return characteristics;
 }
 
 function updateCountries(id, values) {
