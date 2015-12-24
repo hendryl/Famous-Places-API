@@ -42,7 +42,7 @@ router.get('/photos', function(req, res) {
         url = url.replace('$2', data.server);
         url = url.replace('$3', data.id);
         url = url.replace('$4', data.secret);
-        url = url.replace('$5', req.query.sizing);
+        url = url.replace('$5', 'o');
 
         var photo = {
           id: data.id,
@@ -79,6 +79,7 @@ router.get('/photos/:id', function(req, res) {
         url = url.replace('$2', data.server);
         url = url.replace('$3', data.id);
         url = url.replace('$4', data.secret);
+        url = url.replace('$5', req.query.sizing);
 
         var photo = {
           id: data.id,
