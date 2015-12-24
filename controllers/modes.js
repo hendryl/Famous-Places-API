@@ -10,6 +10,10 @@ var router = express.Router();
 router.get('/', function(req, res) {
   var query = "SELECT * FROM modes";
 
+  if(req.query.enabled != null) {
+    query += " WHERE enabled = " + req.query.enabled;
+  }
+
   db.query(query)
     .then(function(result) {
       res.status(200).send(result.rows);
