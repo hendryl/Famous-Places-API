@@ -6,7 +6,7 @@ var flickrOptions = {
   secret: "5e679464ec9b36ca"
 };
 
-var photoURL = "https://farm$1.staticflickr.com/$2/$3_$4_q.jpg";
+var photoURL = "https://farm$1.staticflickr.com/$2/$3_$4_$5.jpg";
 var router = express.Router();
 
 router.get('/photos', function(req, res) {
@@ -42,6 +42,7 @@ router.get('/photos', function(req, res) {
         url = url.replace('$2', data.server);
         url = url.replace('$3', data.id);
         url = url.replace('$4', data.secret);
+        url = url.replace('$5', req.query.sizing);
 
         var photo = {
           id: data.id,
