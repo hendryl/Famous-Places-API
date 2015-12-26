@@ -8,6 +8,7 @@ router.use('/characteristics', require('./characteristics'));
 router.use('/places', require('./places'));
 router.use('/flickr', require('./flickr'));
 router.use('/modes', require('./modes'));
+router.use('/games', require('./games'));
 
 router.get('/', function(req, res) {
   res.status(200).json({message: "This is the Famous Places API"});
