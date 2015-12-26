@@ -3,6 +3,7 @@
   "bitwise": true,
   "curly": true,
   "eqeqeq": true,
+  "eqnull": true,
   "latedef": false,
   "mocha": true,
   "noarg": true,
