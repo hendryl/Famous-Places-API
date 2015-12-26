@@ -28,7 +28,7 @@ router.post('/', function(req, res) {
     res.status(500).send(error);
   };
 
-  var passwordPromise = passwordMaker.createUsablePassword();
+  var passwordPromise = passwordMaker.createPassword();
   passwordPromise.then(function(result) {
     values.push(result);
     createGame(values).then(function(result) {
