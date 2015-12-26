@@ -1,12 +1,10 @@
 var _ = require('underscore');
-var chance = require('chancejs');
 var express = require('express');
 
 var db = require('../helpers/db');
 var isBadRequest = require('../helpers/request-checker');
 
 var router = express.Router();
-var socketController = require('./sockets');
 var questionMaker = require('../helpers/question-maker');
 var passwordMaker = require('../helpers/password-maker');
 
