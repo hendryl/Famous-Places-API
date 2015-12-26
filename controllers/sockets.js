@@ -1,5 +1,3 @@
-var _ = require('underscore');
-
 function prepare(io) {
   io.on('connection', function(socket) {
     console.log('User ' + socket.id + ' connected');
