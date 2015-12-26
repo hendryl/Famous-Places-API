@@ -13,7 +13,7 @@ function createGame(values) {
   return db.query(query, values);
 }
 
-router.post('/games', function(req, res) {
+router.post('/', function(req, res) {
   var values = [
     req.body.mode_id
   ];
