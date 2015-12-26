@@ -5,14 +5,17 @@ var query ='SELECT places.place_id, places.name, places.latitude, places.longitu
 
 var characteristicQuery = 'SELECT tags.place_id FROM tags JOIN (SELECT characteristic_id, modes.mode_id FROM mode_characteristic JOIN modes ON mode_characteristic.mode_id = modes.mode_id WHERE modes.mode_id = $1) AS chars ON tags.characteristic_id = chars.characteristic_id';
 
-var continentQuery = 'SELECT mode_continent.continent_id FROM modes JOIN mode_continent ON mode_continent.mode_id = modes.mode_id WHERE modes.mode_id = 17';
+var continentQuery = 'SELECT mode_continent.continent_id FROM modes JOIN mode_continent ON mode_continent.mode_id = modes.mode_id WHERE modes.mode_id = $1';
 
-var countryQuery = 'SELECT mode_country.country_id FROM modes LEFT JOIN mode_country ON mode_country.mode_id = modes.mode_id WHERE modes.mode_id = 18';
+var countryQuery = 'SELECT mode_country.country_id FROM modes JOIN mode_country ON mode_country.mode_id = modes.mode_id WHERE modes.mode_id = $1';
 
 function createQuestions(mode_id, amount) {
+  var values = [mode_id];
+
   return new Promise(function(resolve, reject) {
-    createQuery.then(function(query) {
-      db.query(query).then(function(result) {
+    createQuery(values).then(function(queryString) {
+      queryString = queryString.replace('$1', mode_id);
+      db.query(queryString).then(function(result) {
          resolve(chance.pick(result.rows, amount));
       })
       .catch(function(error) {
@@ -22,25 +25,24 @@ function createQuestions(mode_id, amount) {
   });
 }
 
-function createQuery(mode_id) {
+function createQuery(values) {
   return new Promise(function(resolve, reject) {
-    createSubquery(mode_id).then(function(result) {
+    createSubquery(values).then(function(result) {
       var queryString = query.replace('subquery', result);
       resolve(queryString);
     }, function(reason) {
       reject(reason);
     });
   });
-
 }
 
-function createSubquery(mode_id) {
-  var characteristicPromise = needQuery(characteristicQuery, mode_id);
-  var continentPromise = needQuery(continentQuery, mode_id);
-  var countryPromise = needQuery(countryQuery, mode_id);
+function createSubquery(values) {
+  var characteristicPromise = needQuery(characteristicQuery, values);
+  var continentPromise = needQuery(continentQuery, values);
+  var countryPromise = needQuery(countryQuery, values);
 
   return new Promise(function(resolve, reject) {
-    Promise.all(characteristicPromise, continentPromise, countryPromise)
+    Promise.all([characteristicPromise, continentPromise, countryPromise])
     .then(function(results) {
       var subquery = '';
       var atLeastOneSub = false;
@@ -76,9 +78,9 @@ function createSubquery(mode_id) {
   });
 }
 
-function needQuery(query, mode_id) {
+function needQuery(query, values) {
   return new Promise(function(resolve, reject) {
-    db.query(query).then(function(result) {
+    db.query(query, values).then(function(result) {
       if(result.rows.length > 0) {
         resolve(true);
       } else {

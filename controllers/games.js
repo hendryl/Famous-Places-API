@@ -35,7 +35,7 @@ router.post('/', function(req, res) {
     createGame(values).then(function(result) {
       var row = result.rows[0];
 
-      questionMaker.createQuestions(5, values[0]).then(function(result) {
+      questionMaker.createQuestions(values[0], 5).then(function(result) {
         row.questions = result;
 
         res.status(201).send(row);
