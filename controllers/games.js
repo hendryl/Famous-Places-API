@@ -20,6 +20,7 @@ router.post('/', function(req, res) {
 
   if (isBadRequest(values)) {
     res.status(400).send("Bad Request");
+    console.log('bad request');
     return;
   }
 

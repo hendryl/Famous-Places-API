@@ -1,4 +1,4 @@
-var chance = require('chance');
+var chance = require('chance')();
 var db = require('./db');
 var _ = require('underscore');
 
