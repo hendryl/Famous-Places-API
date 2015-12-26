@@ -24,7 +24,24 @@ router.post('/games', function(req, res) {
     return;
   }
 
+  var logError = function(error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+
   var passwordPromise = passwordMaker.createUsablePassword();
+  passwordPromise.then(function(result) {
+    values.push(result);
+    createGame(values).then(function(result) {
+      var row = result.rows[0];
+
+      questionMaker.createQuestions(5, values[0]).then(function(result) {
+        row.questions = result;
+
+        res.status(201).send(row);
+      }, logError);
+    }, logError);
+  }, logError);
 });
 
 /* disconnection (desktop web closed)
