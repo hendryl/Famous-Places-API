@@ -18,6 +18,7 @@
   "homepage": "https://github.com/hendryl/Famous-Places-API#readme",
   "dependencies": {
     "body-parser": "^1.14.0",
+    "chancejs": "0.0.8",
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "flickrapi": "^0.3.36",
