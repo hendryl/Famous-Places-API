@@ -1,4 +1,5 @@
 var chance = require('chancejs');
+var db = require('./db');
 
 var query ='SELECT places.place_id, places.name, places.latitude, places.longitude, places.photo_id, locations.country, locations.continent FROM places LEFT JOIN (SELECT countries.country_id, countries.name AS "country", continents.name AS "continent" FROM countries JOIN continents on countries.continent_id = continents.continent_id) AS locations ON places.country_id = locations.country_id subquery ORDER BY places.place_id';
 
@@ -24,8 +25,8 @@ function createQuestions(mode_id, amount) {
 function createQuery(mode_id) {
   return new Promise(function(resolve, reject) {
     createSubquery(mode_id).then(function(result) {
-      var query = query.replace('subquery', result);
-      resolve(query);
+      var queryString = query.replace('subquery', result);
+      resolve(queryString);
     }, function(reason) {
       reject(reason);
     });
@@ -71,7 +72,7 @@ function createSubquery(mode_id) {
       resolve(subquery);
     }, function(reason) {
       reject(reason);
-    })
+    });
   });
 }
 
@@ -91,4 +92,4 @@ function needQuery(query, mode_id) {
 
 module.exports = {
   createQuestions: createQuestions
-}
+};
