@@ -1,4 +1,4 @@
-var chance = require('chancejs');
+var chance = require('chance');
 var db = require('./db');
 
 var query ='SELECT places.place_id, places.name, places.latitude, places.longitude, places.photo_id, locations.country, locations.continent FROM places LEFT JOIN (SELECT countries.country_id, countries.name AS "country", continents.name AS "continent" FROM countries JOIN continents on countries.continent_id = continents.continent_id) AS locations ON places.country_id = locations.country_id subquery ORDER BY places.place_id';

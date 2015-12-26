@@ -1,4 +1,4 @@
-var chance = require('chancejs');
+var chance = require('chance');
 var db = require('./db');
 var _ = require('underscore');
 
@@ -20,11 +20,10 @@ function createUsablePassword() {
   return new Promise(function(resolve, reject) {
     getCurrentPasswordList().then(function(result) {
       var passwords = result.rows;
-
       var usable = false;
       var password = '';
 
-      while (usable === false) {
+      while (!usable) {
         password = createPassword();
         usable = checkPasswordUsable(password, passwords);
       }
