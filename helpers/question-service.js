@@ -114,7 +114,7 @@ function createSaveQuery(game, places) {
     return memo.toString() + n.toString();
   }, '')
   .value();
-  
+
   return query + values;
 }
 
@@ -128,8 +128,14 @@ function saveQuestions(game_id, questions) {
   return db.query(query);
 }
 
+function getQuestions(game_id) {
+  var queryString = query.replace('subquery', ' WHERE places.place_id in (SELECT questions.place_id FROM questions WHERE game_id = ' + game_id + ')');
+
+  return db.query(queryString);
+}
 
 module.exports = {
   createQuestions: createQuestions,
-  saveQuestions: saveQuestions
+  saveQuestions: saveQuestions,
+  getQuestions: getQuestions
 };
