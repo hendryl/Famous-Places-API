@@ -70,6 +70,13 @@ router.get('/photos/:id', function(req, res) {
     }
 
     var query = {photo_id: req.params.id};
+
+    if (query == null) {
+      console.log("no photo id received");
+      res.status(400).send("No photo id!");
+      return;
+    }
+
     flickr.photos.getInfo(query, function(err, result) {
 
       if(type === 'cms') {
