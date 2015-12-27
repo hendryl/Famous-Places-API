@@ -1,10 +1,11 @@
+var _ = require('underscore');
 var express = require('express');
 
 var db = require('../helpers/db');
 var isBadRequest = require('../helpers/request-checker');
 
 var router = express.Router();
-var questionMaker = require('../helpers/question-maker');
+var questionsService = require('../helpers/question-service');
 var passwordMaker = require('../helpers/password-maker');
 
 function createGame(values) {
@@ -35,14 +36,33 @@ router.post('/', function(req, res) {
     createGame(values).then(function(result) {
       var row = result.rows[0];
 
-      questionMaker.createQuestions(values[0], 5).then(function(result) {
-        row.questions = result;
+      questionsService.createQuestions(values[0], 5).then(function(result) {
+        row.questions = _.sortBy(result, function(n) {
+          return n.place_id;
+        });
+        questionsService.saveQuestions(row.game_id, result).then(function(result) {
+          console.log("Questions for game: " + row.game_id + " successfully saved.");
+        }, logError);
 
         res.status(201).send(row);
       }, logError);
     }, logError);
   }, logError);
 });
+
+router.get('/:id/questions', function(req, res) {
+  questionsService.getQuestions(req.params.id).then(function(result) {
+    var rows = _.sortBy(result.rows, function(n) {
+      return n.place_id;
+    });
+
+    res.status(200).send(rows);
+  }, function(error) {
+    console.log(error);
+    res.status(500).send(error);
+  });
+});
+
 
 /* disconnection (desktop web closed)
 game is marked as done
