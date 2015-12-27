@@ -60,7 +60,6 @@ router.get('/photos', function(req, res) {
 
 router.get('/photos/:id', function(req, res) {
   Flickr.tokenOnly(flickrOptions, function(error, flickr) {
-
     var type = req.query.type;
 
     if (error) {
@@ -69,7 +68,9 @@ router.get('/photos/:id', function(req, res) {
       return;
     }
 
-    var query = {photo_id: req.params.id};
+    var query = {
+      photo_id: req.params.id
+    };
 
     if (query == null) {
       console.log("no photo id received");
@@ -78,26 +79,28 @@ router.get('/photos/:id', function(req, res) {
     }
 
     flickr.photos.getInfo(query, function(err, result) {
+      var url = photoURL;
+      var data = result.photo;
 
-      if(type === 'cms') {
-        var url = photoURL;
-        var data = result.photo;
-        url = url.replace('$1', data.farm);
-        url = url.replace('$2', data.server);
-        url = url.replace('$3', data.id);
-        url = url.replace('$4', data.secret);
-        url = url.replace('$5', req.query.sizing);
+      url = url.replace('$1', data.farm);
+      url = url.replace('$2', data.server);
+      url = url.replace('$3', data.id);
+      url = url.replace('$4', data.secret);
+      url = url.replace('$5', req.query.sizing);
 
-        var photo = {
-          id: data.id,
-          title: data.title._content,
-          url: url
-        };
+      var photo = {
+        id: data.id,
+        title: data.title._content,
+        url: url
+      };
 
-        result = photo;
+      if (type !== 'cms') {
+        photo.dates = data.dates;
+        photo.owner = data.owner;
+        photo.pageurl = data.urls.url[0]._content;
       }
 
-      res.status(200).send(result);
+      res.status(200).send(photo);
     });
   });
 });
