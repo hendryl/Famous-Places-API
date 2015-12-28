@@ -36,12 +36,15 @@ router.post('/', function(req, res) {
     createGame(values).then(function(result) {
       var row = result.rows[0];
 
+      console.log("Game #" + row.game_id + " successfully created");
+      console.log("Password for game #" + row.game_id + " is " + values[1]);
+
       questionsService.createQuestions(values[0], 5).then(function(result) {
         row.questions = _.sortBy(result, function(n) {
           return n.place_id;
         });
         questionsService.saveQuestions(row.game_id, result).then(function(result) {
-          console.log("Questions for game: " + row.game_id + " successfully saved.");
+          console.log("Questions for game #" + row.game_id + " successfully saved.");
         }, logError);
 
         res.status(201).send(row);

@@ -18,9 +18,8 @@ function checkPasswordUsable(password, passwords) {
 
 function createUsablePassword() {
   return new Promise(function(resolve, reject) {
-    console.log("creating password");
     getCurrentPasswordList().then(function(result) {
-      console.log("Successfully retrieved passwords from database");
+      console.log("Successfully retrieved active passwords from database");
       var passwords = result.rows;
       var usable = false;
       var password = '';
@@ -30,7 +29,6 @@ function createUsablePassword() {
         usable = checkPasswordUsable(password, passwords);
       }
 
-      console.log("password is " + password);
       resolve(password);
     }, function(error) {
       reject(error);

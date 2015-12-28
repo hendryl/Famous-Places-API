@@ -124,7 +124,6 @@ function saveQuestions(game_id, questions) {
   });
 
   var query = createSaveQuery(game_id, places);
-  console.log(query);
   return db.query(query);
 }
 
