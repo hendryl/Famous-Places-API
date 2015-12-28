@@ -2,7 +2,7 @@ var _ = require('underscore');
 var chance = require('chance')();
 var db = require('./db');
 
-var query = 'SELECT places.place_id, places.name, places.latitude, places.longitude, places.photo_id, locations.country, locations.continent FROM places LEFT JOIN (SELECT countries.country_id, countries.name AS "country", continents.name AS "continent" FROM countries JOIN continents on countries.continent_id = continents.continent_id) AS locations ON places.country_id = locations.country_id subquery ORDER BY places.place_id';
+var query = 'SELECT places.place_id, places.name, places.latitude, places.longitude, places.photo_id, locations.country, locations.flag, locations.continent FROM places LEFT JOIN (SELECT countries.country_id, countries.name AS "country", countries.image AS "flag", continents.name AS "continent" FROM countries JOIN continents on countries.continent_id = continents.continent_id) AS locations ON places.country_id = locations.country_id subquery ORDER BY places.place_id';
 
 var characteristicQuery = 'SELECT tags.place_id FROM tags JOIN (SELECT characteristic_id, modes.mode_id FROM mode_characteristic JOIN modes ON mode_characteristic.mode_id = modes.mode_id WHERE modes.mode_id = $1) AS chars ON tags.characteristic_id = chars.characteristic_id';
 
