@@ -126,6 +126,7 @@ router.put('/:id', function(req, res) {
   var values = [
     req.body.name,
     req.body.description,
+    req.body.country_id,
     req.body.photo_id,
     req.body.latitude,
     req.body.longitude,
@@ -175,7 +176,7 @@ router.put('/:id', function(req, res) {
   });
 
   tagPromise.then(function(result) {
-    var query = "UPDATE places SET name = $1, description = $2, photo_id = $3, latitude = $4, longitude = $5, link = $6, enabled = $7 WHERE place_id = " + id;
+    var query = "UPDATE places SET name = $1, description = $2, country_id = $3, photo_id = $4, latitude = $5, longitude = $6, link = $7, enabled = $8 WHERE place_id = " + id;
 
     db.query(query, values)
       .then(function(result) {
