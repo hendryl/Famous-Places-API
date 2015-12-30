@@ -16,11 +16,27 @@ var server = app.listen(port, function () {
   console.log('App listening at port %s', port);
 });
 
+var logger = function(severity, message) {
+  if(process.env.NODE_ENV === 'production') {
+    if(severity != 'debug') {
+      console.log(message);
+    }
+  } else {
+    console.log(message);
+  }
+};
 
-var io = require('socket.io')(server);
+var sockjs = require('sockjs');
+var sockjs_opts = {
+  sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js",
+  prefix: '/api/sockets',
+  log: logger
+};
 
-//prepare the websocket
-var socketController = require('./controllers/sockets.js');
-io = socketController.prepare(io);
+var sockjsServer = sockjs.createServer(sockjs_opts);
+sockjsServer.installHandlers(server);
+
+var sockHandler = require('./controllers/sock-handler');
+sockHandler(sockjsServer);
 
 module.exports = server;
