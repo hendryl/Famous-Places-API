@@ -1,5 +1,8 @@
 var redisService = require('../helpers/redis-service');
 var handleOwnerSocket = require('./socket.owner');
+var handlePlayerSocket = require('./socket.player');
+
+var conns = {};
 
 function logger(severity, message) {
   if(process.env.NODE_ENV === 'production') {
@@ -15,6 +18,8 @@ function createConnectionHandlers(server) {
   server.on('connection', function(conn) {
     console.log('connection create ' + conn);
 
+    conns[conn.id] = conn;
+
     conn.on('data', function(message) {
       message = JSON.parse(message);
 
@@ -25,9 +30,9 @@ function createConnectionHandlers(server) {
         });
         conn.write(json);
       } else if(message.role === 'owner') {
-          handleOwnerSocket(conn);
+          handleOwnerSocket(conns, conn);
       } else if(message.role === 'player'){
-        //TODO: Handle player socket
+          handlePlayerSocket(conns, conn);
       } else {
         var json = JSON.stringify({
           type:'error',
@@ -38,6 +43,7 @@ function createConnectionHandlers(server) {
     });
 
     conn.on('close', function() {
+      conns[conn.id] = undefined;
       console.log('connection close ' + conn);
     });
   });

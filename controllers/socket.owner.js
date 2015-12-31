@@ -1,6 +1,8 @@
 var redisService = require('../helpers/redis-service');
+var conns = {};
 
-function handleOwnerSocket(conn, message) {
+function handleOwnerSocket(allConns, conn, message) {
+  conns = allConns;
 
   if (message.type == null) {
     sendError(conn);
