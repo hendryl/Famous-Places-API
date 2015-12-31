@@ -25,6 +25,10 @@ function stopRedis() {
   client.quit();
 }
 
+function getRoomList() {
+  return client.keysAsync('room');
+}
+
 function createRoom(room, owner) {
   var obj = {
     'owner': owner
@@ -38,7 +42,14 @@ function getRoomOwner(room) {
 }
 
 function getPlayersInRoom(room) {
-  return client.hgetAsync(room, 'players');
+  return new Promise(function(resolve, reject) {
+    client.hgetAsync(room, 'players').then(function(res) {
+      var players = res.split(',');
+      resolve(players);
+    }).catch(function(err) {
+      reject(err);
+    });
+  });
 }
 
 function joinRoom(room, player) {
@@ -62,20 +73,20 @@ function joinRoom(room, player) {
         resolve(client.hmsetAsync(room, obj));
       }
     }).catch(function(err) {
-      reject(res);
+      reject(err);
     });
-  }).catch(function(err) {
-    reject(res);
   });
 }
 
 function deleteRoom(room) {
-  return client.delAsync(room);
+  console.log('delete ' + room);
+  client.del(room, redis.print);
 }
 
 module.exports = {
   start: startRedis,
   stop: stopRedis,
+  getRoomList: getRoomList,
   createRoom: createRoom,
   joinRoom: joinRoom,
   deleteRoom: deleteRoom,

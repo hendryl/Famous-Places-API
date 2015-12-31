@@ -11,13 +11,17 @@ function handleOwnerSocket(redis, allConns, conn, message) {
     sendError(conn);
 
   } else if (message.type === 'create_room') {
-    room = 'room:' + message.name;
+    conn.room = message.name;
+    conn.role = 'owner';
+
+    room = 'room:' + conn.room;
     var owner = conn.id;
     createRoom(conn, room, owner);
 
   } else if (message.type === 'delete_room') {
     room = 'room:' + message.name;
     deleteRoom(conn, room);
+    conn.room = undefined;
 
   } else {
     sendError('Unknown message type');
