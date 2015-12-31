@@ -6,10 +6,12 @@ function handlePlayerSocket(allConns, conn, message) {
 
   if (message.type == null) {
     sendError(conn);
+
   } else if (message.type === 'join_room') {
     var room = message.name;
     var player = message.player;
     joinRoom(conn, room, player);
+
   } else {
     sendError('Unknown message type');
   }
@@ -28,7 +30,7 @@ function joinRoom(conn, room, player) {
         type: 'join_room',
         name: player,
         id: conn.id
-      })
+      });
     });
   }, function(err) {
     sendError(conn, res);
