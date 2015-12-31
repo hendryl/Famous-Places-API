@@ -17,24 +17,24 @@ function logger(severity, message) {
 function createConnectionHandlers(server) {
   server.on('connection', function(conn) {
     console.log('connection create ' + conn);
-
     conns[conn.id] = conn;
 
     conn.on('data', function(message) {
+      var json = null;
       message = JSON.parse(message);
 
       if(message.role === null) {
-        var json = JSON.stringify({
+        json = JSON.stringify({
           type:'error',
           reason:'Undefined role'
         });
         conn.write(json);
       } else if(message.role === 'owner') {
-          handleOwnerSocket(conns, conn);
+          handleOwnerSocket(redisService, conns, conn, message);
       } else if(message.role === 'player'){
-          handlePlayerSocket(conns, conn);
+          handlePlayerSocket(redisService, conns, conn, message);
       } else {
-        var json = JSON.stringify({
+        json = JSON.stringify({
           type:'error',
           reason:'Unknown role'
         });

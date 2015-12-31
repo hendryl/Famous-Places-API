@@ -1,19 +1,22 @@
-var redisService = require('../helpers/redis-service');
+var redisService = null;
 var conns = {};
 
-function handleOwnerSocket(allConns, conn, message) {
+function handleOwnerSocket(redis, allConns, conn, message) {
   conns = allConns;
+  redisService = redis;
+
+  var room = null;
 
   if (message.type == null) {
     sendError(conn);
 
   } else if (message.type === 'create_room') {
-    var room = message.name;
+    room = 'room:' + message.name;
     var owner = conn.id;
     createRoom(conn, room, owner);
 
   } else if (message.type === 'delete_room') {
-    var room = message.name;
+    room = 'room:' + message.name;
     deleteRoom(conn, room);
 
   } else {
@@ -27,8 +30,8 @@ function createRoom(conn, room, owner) {
       type: 'create_room',
       result: true
     });
-  }, function(err) {
-    sendError(conn, res);
+  }).catch(function(err) {
+    sendError(conn, err);
   });
 }
 
@@ -38,8 +41,8 @@ function deleteRoom(conn, room) {
       type: 'delete_room',
       result: true
     });
-  }, function(err) {
-    sendError(conn, res);
+  }).catch(function(err) {
+    sendError(conn, err);
   });
 }
 
@@ -54,7 +57,7 @@ function sendError(conn, reason) {
   write(conn, {
     type: 'error',
     reason: reason
-  })
+  });
 }
 
 module.exports = handleOwnerSocket;

@@ -1,14 +1,16 @@
-var redisService = require('../helpers/redis-service');
 var conns = {};
 
-function handlePlayerSocket(allConns, conn, message) {
+function handlePlayerSocket(redis, allConns, conn, message) {
   conns = allConns;
+  redisService = redis;
+
+  console.log(redisService.client);
 
   if (message.type == null) {
     sendError(conn);
 
   } else if (message.type === 'join_room') {
-    var room = message.name;
+    var room = 'room:' + message.name;
     var player = message.player;
     joinRoom(conn, room, player);
 
@@ -18,6 +20,10 @@ function handlePlayerSocket(allConns, conn, message) {
 }
 
 function joinRoom(conn, room, player) {
+  var errorCallback = function(err) {
+    sendError(conn, err);
+  };
+
   redisService.joinRoom(room, conn.id).then(function(res) {
     write(conn, {
       type: 'join_room',
@@ -31,10 +37,8 @@ function joinRoom(conn, room, player) {
         name: player,
         id: conn.id
       });
-    });
-  }, function(err) {
-    sendError(conn, res);
-  });
+    }).catch(errorCallback);
+  }).catch(errorCallback);
 }
 
 function write(conn, obj) {
@@ -48,7 +52,7 @@ function sendError(conn, reason) {
   write(conn, {
     type: 'error',
     reason: reason
-  })
+  });
 }
 
 module.exports = handlePlayerSocket;
