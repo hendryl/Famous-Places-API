@@ -8,7 +8,7 @@ function handleOwnerSocket(conn, message) {
 
   else if (message.type === 'create_room') {
     var room = message.name;
-    var owner = message.owner;
+    var owner = conn.id;
     createRoom(conn, room, owner);
   }
 
