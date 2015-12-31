@@ -1,3 +1,6 @@
+var redisService = require('../helpers/redis-service');
+var socketOwner = require('./socket.owner');
+
 function logger(severity, message) {
   if(process.env.NODE_ENV === 'production') {
     if(severity !== 'debug') {
@@ -11,6 +14,8 @@ function logger(severity, message) {
 function createConnectionHandlers(server) {
   server.on('connection', function(conn) {
     console.log('connection create ' + conn);
+
+    socketOwner.createRoomOwnerHandlers(conn);
 
     conn.on('close', function() {
       console.log('connection close ' + conn);
@@ -29,6 +34,7 @@ function createServer(server) {
   var sockServer = sockjs.createServer(sockjs_opts);
   sockServer.installHandlers(server);
   createConnectionHandlers(sockServer);
+  redisService.start();
 }
 
 module.exports = createServer;
