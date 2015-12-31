@@ -30,7 +30,7 @@ function createRoom(room, owner) {
     'owner': owner
   };
 
-  return client.hmsetAsync(room, obj, redis.print);
+  return client.hmsetAsync(room, obj);
 }
 
 function getRoomOwner(room) {
@@ -42,27 +42,35 @@ function getPlayersInRoom(room) {
 }
 
 function joinRoom(room, player) {
-  getPlayersInRoom(room).then(function(res) {
-    console.log(res);
-    var obj = null;
+  return new Promise(function(resolve, reject) {
+    getPlayersInRoom(room).then(function(res) {
+      console.log('get players result: ' + res);
+      var obj = null;
 
-    if (res == null) {
-      obj = {
-        'player': player
-      };
-      return client.hmsetAsync(room, obj, redis.print);
+      if (res == null) {
+        console.log('res is empty');
+        obj = {
+          'players': player
+        };
+        resolve(client.hmsetAsync(room, obj));
 
-    } else {
-      obj = {
-        'player': res + ',' + player
-      };
-      return client.hmsetAsync(room, obj, redis.print);
-    }
+      } else {
+        console.log('have res');
+        obj = {
+          'players': res + ',' + player
+        };
+        resolve(client.hmsetAsync(room, obj));
+      }
+    }).catch(function(err) {
+      reject(res);
+    });
+  }).catch(function(err) {
+    reject(res);
   });
 }
 
 function deleteRoom(room) {
-  return client.delAsync(room, redis.print);
+  return client.delAsync(room);
 }
 
 module.exports = {

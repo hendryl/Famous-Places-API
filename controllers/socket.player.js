@@ -4,8 +4,6 @@ function handlePlayerSocket(redis, allConns, conn, message) {
   conns = allConns;
   redisService = redis;
 
-  console.log(redisService.client);
-
   if (message.type == null) {
     sendError(conn);
 
@@ -25,12 +23,15 @@ function joinRoom(conn, room, player) {
   };
 
   redisService.joinRoom(room, conn.id).then(function(res) {
+    console.log('join room successful');
+
     write(conn, {
       type: 'join_room',
       result: true
     });
 
     redisService.getRoomOwner(room).then(function(owner) {
+      console.log('get owner successful');
       var ownerConn = conns[owner];
       write(ownerConn, {
         type: 'join_room',
@@ -38,7 +39,7 @@ function joinRoom(conn, room, player) {
         id: conn.id
       });
     }).catch(errorCallback);
-  }).catch(errorCallback);
+  }, errorCallback);
 }
 
 function write(conn, obj) {
