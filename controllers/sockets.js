@@ -18,10 +18,22 @@ function createConnectionHandlers(server) {
     conn.on('data', function(message) {
       message = JSON.parse(message);
 
-      if(message.role === 'owner') {
+      if(message.role === null) {
+        var json = JSON.stringify({
+          type:'error',
+          reason:'Undefined role'
+        });
+        conn.write(json);
+      } else if(message.role === 'owner') {
           handleOwnerSocket(conn);
-      } else {
+      } else if(message.role === 'player'){
         //TODO: Handle player socket
+      } else {
+        var json = JSON.stringify({
+          type:'error',
+          reason:'Unknown role'
+        });
+        conn.write(json);
       }
     });
 

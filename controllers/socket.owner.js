@@ -1,19 +1,24 @@
 var redisService = require('../helpers/redis-service');
 
 function handleOwnerSocket(conn, message) {
-  if (message.type === 'create_room') {
+
+  if (message.type == null) {
+    sendError(conn);
+  }
+
+  else if (message.type === 'create_room') {
     var room = message.name;
     var owner = message.owner;
     createRoom(conn, room, owner);
   }
 
-  if (message.type === 'delete_room') {
+  else if (message.type === 'delete_room') {
     var room = message.name;
     deleteRoom(conn, room);
   }
 
-  if (message.type == null) {
-    sendError(conn);
+  else  {
+    sendError('Unknown message type');
   }
 }
 
@@ -47,7 +52,7 @@ function write(conn, obj) {
 }
 
 function sendError(conn, reason) {
-  reason = reason || 'No Message Type';
+  reason = reason || 'Undefined message type';
 
   write(conn, {
     type: 'error',
