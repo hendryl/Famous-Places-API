@@ -16,27 +16,7 @@ var server = app.listen(port, function () {
   console.log('App listening at port %s', port);
 });
 
-var logger = function(severity, message) {
-  if(process.env.NODE_ENV === 'production') {
-    if(severity != 'debug') {
-      console.log(message);
-    }
-  } else {
-    console.log(message);
-  }
-};
-
-var sockjs = require('sockjs');
-var sockjs_opts = {
-  sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js",
-  prefix: '/api/sockets',
-  log: logger
-};
-
-var sockjsServer = sockjs.createServer(sockjs_opts);
-sockjsServer.installHandlers(server);
-
-var sockHandler = require('./controllers/sock-handler');
-sockHandler(sockjsServer);
+var socketController = require('./controllers/sockets');
+socketController(server);
 
 module.exports = server;
