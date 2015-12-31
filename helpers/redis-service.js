@@ -33,6 +33,35 @@ function createRoom(room, owner) {
   return client.hmsetAsync(roomName, obj, redis.print);
 }
 
+function getRoomOwner(room) {
+  return client.hgetAsync(room, 'owner')
+}
+
+function getPlayersInRoom(room) {
+  return client.hgetAsync(roomName, 'players');
+}
+
+function joinRoom(room, player) {
+  var roomName = 'room:' + room;
+
+  getPlayersInRoom(roomName).then(function(res) {
+    console.log(res);
+
+    if (res == null) {
+      var obj = {
+        'player': player
+      };
+
+      return client.hmsetAsync(roomName, obj, redis.print);
+    } else {
+      var obj = {
+        'player': res + ',' + player
+      }
+      return client.hmsetAsync(roomName, obj, redis.print);
+    }
+  })
+}
+
 function deleteRoom(room) {
   return client.delAsync('room:' + room, redis.print);
 }
