@@ -16,11 +16,7 @@ var server = app.listen(port, function () {
   console.log('App listening at port %s', port);
 });
 
-
-var io = require('socket.io')(server);
-
-//prepare the websocket
-var socketController = require('./controllers/sockets.js');
-io = socketController.prepare(io);
+var socketController = require('./controllers/sockets');
+socketController(server);
 
 module.exports = server;
