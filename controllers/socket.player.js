@@ -19,14 +19,12 @@ function handlePlayerSocket(redis, allConns, conn, message) {
 }
 
 function joinRoom(conn, room, player) {
-  var errorCallback = function(err) {
-    sendError(conn, err);
-  };
-
   //TODO: CHECK FOR ERRORS!
   // user with same names
   // already 4 players
   // room exists
+
+  console.log('socket player joining ' + room);
 
   redisService.joinRoom(room, conn.id).then(function(res) {
     console.log('join room successful');
@@ -46,8 +44,14 @@ function joinRoom(conn, room, player) {
         name: player,
         id: conn.id
       });
-    }).catch(errorCallback);
-  }, errorCallback);
+    }).catch(function(err) {
+      console.log('failed owner get/write');
+      sendError(conn, err);
+    });
+  }, function(err){
+    console.log('error joining room');
+    sendError(conn, err);
+  });
 }
 
 function write(conn, obj) {

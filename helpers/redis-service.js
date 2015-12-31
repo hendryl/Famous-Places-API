@@ -43,16 +43,25 @@ function getRoomOwner(room) {
 
 function getPlayersInRoom(room) {
   return new Promise(function(resolve, reject) {
+    console.log('getting players from redis');
     client.hgetAsync(room, 'players').then(function(res) {
-      var players = res.split(',');
+      var players = null;
+
+      if(res != null) {
+        players = res.split(',');
+      }
+
       resolve(players);
     }).catch(function(err) {
+      console.log('failed to get players');
       reject(err);
     });
   });
 }
 
 function joinRoom(room, player) {
+  console.log('joining room');
+
   return new Promise(function(resolve, reject) {
     getPlayersInRoom(room).then(function(res) {
       console.log('get players result: ' + res);
@@ -73,6 +82,7 @@ function joinRoom(room, player) {
         resolve(client.hmsetAsync(room, obj));
       }
     }).catch(function(err) {
+      console.log('');
       reject(err);
     });
   });
