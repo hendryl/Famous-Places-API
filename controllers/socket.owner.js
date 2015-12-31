@@ -6,46 +6,41 @@ function handleOwnerSocket(allConns, conn, message) {
 
   if (message.type == null) {
     sendError(conn);
-  }
 
-  else if (message.type === 'create_room') {
+  } else if (message.type === 'create_room') {
     var room = message.name;
     var owner = conn.id;
     createRoom(conn, room, owner);
-  }
 
-  else if (message.type === 'delete_room') {
+  } else if (message.type === 'delete_room') {
     var room = message.name;
     deleteRoom(conn, room);
-  }
 
-  else  {
+  } else {
     sendError('Unknown message type');
   }
 }
 
 function createRoom(conn, room, owner) {
-  redisService.createRoom(room, owner)
-    .then(function(res) {
-      write(conn, {
-        type: 'create_room',
-        result: true
-      }, function(err) {
-        sendError(conn, res);
-      });
+  redisService.createRoom(room, owner).then(function(res) {
+    write(conn, {
+      type: 'create_room',
+      result: true
     });
+  }, function(err) {
+    sendError(conn, res);
+  });
 }
 
 function deleteRoom(conn, room) {
-  redisService.deleteRoom(room)
-    .then(function(res) {
-      write(conn, {
-        type: 'delete_room',
-        result: true
-      }, function(err) {
-        sendError(conn, res);
-      });
+  redisService.deleteRoom(room).then(function(res) {
+    write(conn, {
+      type: 'delete_room',
+      result: true
     });
+  }, function(err) {
+    sendError(conn, res);
+  });
 }
 
 function write(conn, obj) {
