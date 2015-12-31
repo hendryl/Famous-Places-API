@@ -1,52 +1,61 @@
 var redisService = require('../helpers/redis-service');
 
 function createRoomOwnerHandlers(conn) {
+  console.log('creating room owner handlers');
+
   conn.on('data', function(message) {
+    message = JSON.parse(message);
+
     if(message.type === 'create_room') {
-      var room = message.room;
+      var room = message.name;
       var owner = message.owner;
-      createRoom(room, owner);
+      createRoom(conn, room, owner);
     }
 
     if(message.type === 'delete_room') {
-      var room = message.room;
-      deleteRoom(room);
+      var room = message.name;
+      deleteRoom(conn, room);
     }
 
     if(message.type == null) {
-      sendError();
+      sendError(conn);
     }
   });
 }
 
-function createRoom(room, owner) {
+function createRoom(conn, room, owner) {
   redisService.createRoom(room, owner)
   .then(function(res) {
-    conn.write({
+    write(conn, {
       type: 'create_room',
       result: true
     }, function(err) {
-      sendError(res);
+      sendError(conn, res);
     });
   });
 }
 
-function deleteRoom(room) {
+function deleteRoom(conn, room) {
   redisService.deleteRoom(room)
   .then(function(res) {
-    conn.write({
+    write(conn, {
       type: 'delete_room',
       result: true
     }, function(err) {
-      sendError(res);
+      sendError(conn, res);
     });
   });
 }
 
-function sendError(reason) {
+function write(conn, obj) {
+  var json = JSON.stringify(obj);
+  conn.write(json);
+}
+
+function sendError(conn, reason) {
   reason = reason || 'No Message Type';
 
-  conn.write({
+  write(conn, {
     type: 'error',
     reason: reason
   })
