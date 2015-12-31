@@ -34,7 +34,7 @@ function createRoom(room, owner) {
 }
 
 function deleteRoom(room) {
-  client.del('room:' + room, redis.print);
+  return client.delAsync('room:' + room, redis.print);
 }
 
 module.exports = {

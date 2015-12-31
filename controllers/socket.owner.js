@@ -8,6 +8,11 @@ function createRoomOwnerHandlers(conn) {
       createRoom(room, owner);
     }
 
+    if(message.type === 'delete_room') {
+      var room = message.room;
+      deleteRoom(room);
+    }
+
     if(message.type == null) {
       sendError();
     }
@@ -19,6 +24,18 @@ function createRoom(room, owner) {
   .then(function(res) {
     conn.write({
       type: 'create_room',
+      result: true
+    }, function(err) {
+      sendError(res);
+    });
+  });
+}
+
+function deleteRoom(room) {
+  redisService.deleteRoom(room)
+  .then(function(res) {
+    conn.write({
+      type: 'delete_room',
       result: true
     }, function(err) {
       sendError(res);
