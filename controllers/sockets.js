@@ -60,19 +60,21 @@ function createConnectionHandlers(server) {
 
 function disconnectOwner(conn) {
   //send info to players that room is deleted
-  redisService.getPlayersInRoom(conn.room).then(function(players) {
+  var room = 'room:' + conn.room;
+
+  redisService.getPlayersInRoom(room).then(function(players) {
     var json = JSON.stringify({
       'type': 'owner_disconnect'
     });
 
     _.each(players, function(n) {
+      console.log('writing to player ' + n);
       conns[n].write(json);
       conns[n].close();
       conns[n] = undefined;
     });
   });
 
-  var room = 'room:' + conn.room;
   redisService.deleteRoom(room);
   //end game in database
   gameUtils.endGame(conn.room);
@@ -82,6 +84,12 @@ function disconnectPlayer(conn) {
   //send info to owner that player disconnected
   var room = 'room:' + conn.room;
   redisService.getRoomOwner(room).then(function(owner) {
+
+    if(owner == null) {
+      console.log('owner already disconnected');
+      return;
+    }
+
     var json = JSON.stringify({
       'type': 'player_disconnect',
       'id': conn.id

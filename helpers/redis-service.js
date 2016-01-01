@@ -36,7 +36,6 @@ function getRoomOwner(room) {
 
 function getPlayersInRoom(room) {
   return new Promise(function(resolve, reject) {
-    console.log('getting players from redis');
     client.hgetAsync(room, 'players').then(function(res) {
       var players = null;
 
