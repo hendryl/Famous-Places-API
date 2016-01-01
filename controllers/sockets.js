@@ -7,8 +7,8 @@ var _ = require('underscore');
 var conns = {};
 
 function logger(severity, message) {
-  if(process.env.NODE_ENV === 'production') {
-    if(severity !== 'debug') {
+  if (process.env.NODE_ENV === 'production') {
+    if (severity !== 'debug') {
       console.log(message);
     }
   } else {
@@ -25,21 +25,21 @@ function createConnectionHandlers(server) {
       var json = null;
       message = JSON.parse(message);
 
-      if(message.role === null) {
+      if (message.role === null) {
         json = JSON.stringify({
-          type:'error',
-          reason:'Undefined role'
+          type: 'error',
+          reason: 'Undefined role'
         });
         conn.write(json);
 
-      } else if(message.role === 'owner') {
-          handleOwnerSocket(redisService, conns, conn, message);
-      } else if(message.role === 'player'){
-          handlePlayerSocket(redisService, conns, conn, message);
+      } else if (message.role === 'owner') {
+        handleOwnerSocket(redisService, conns, conn, message);
+      } else if (message.role === 'player') {
+        handlePlayerSocket(redisService, conns, conn, message);
       } else {
         json = JSON.stringify({
-          type:'error',
-          reason:'Unknown role'
+          type: 'error',
+          reason: 'Unknown role'
         });
         conn.write(json);
       }
@@ -49,12 +49,10 @@ function createConnectionHandlers(server) {
       console.log('connection close ' + conn);
       conns[conn.id] = undefined;
 
-      if(conn.role === 'owner') {
+      if (conn.role === 'owner') {
         disconnectOwner(conn);
       } else {
-        //delete name from room
-
-        //send info to room owner that player disconnected
+        disconnectPlayer(conn);
       }
     });
   });
@@ -62,22 +60,45 @@ function createConnectionHandlers(server) {
 
 function disconnectOwner(conn) {
   //send info to players that room is deleted
-  redisService.getPlayersInRoom(conn.room).then(function(players) {
+  var room = 'room:' + conn.room;
+
+  redisService.getPlayersInRoom(room).then(function(players) {
     var json = JSON.stringify({
-      'type':'owner_disconnect'
+      'type': 'owner_disconnect'
     });
 
     _.each(players, function(n) {
+      console.log('writing to player ' + n);
       conns[n].write(json);
       conns[n].close();
       conns[n] = undefined;
     });
   });
 
-  var room = 'room:' + conn.room;
   redisService.deleteRoom(room);
   //end game in database
   gameUtils.endGame(conn.room);
+}
+
+function disconnectPlayer(conn) {
+  //send info to owner that player disconnected
+  var room = 'room:' + conn.room;
+  redisService.getRoomOwner(room).then(function(owner) {
+
+    if(owner == null) {
+      console.log('owner already disconnected');
+      return;
+    }
+
+    var json = JSON.stringify({
+      'type': 'player_disconnect',
+      'id': conn.id
+    });
+
+    conns[owner].write(json);
+  });
+
+  redisService.leaveRoom(room, conn.id);
 }
 
 function createServer(server) {
