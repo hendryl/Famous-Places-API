@@ -30,19 +30,25 @@ function getRoomList() {
   return client.keysAsync('room');
 }
 
+function roomExists(room) {
+  return client.existsAsync(room);
+}
+
 function getRoomOwner(room) {
   return client.hgetAsync(room, 'owner');
 }
 
 function getPlayersInRoom(room) {
   return new Promise(function(resolve, reject) {
+    console.log('getting list of players from redis');
     client.hgetAsync(room, 'players').then(function(res) {
-      var players = null;
+      var players = [];
 
-      if (res != null) {
+      if (res != null && res.length !== 0) {
+        console.log('splitting res: ' + res);
         players = res.split(',');
+        console.log('players after split:' + players);
       }
-
       resolve(players);
     }).catch(function(err) {
       console.log('failed to get players');
@@ -68,25 +74,27 @@ function joinRoom(room, player) {
 
   return new Promise(function(resolve, reject) {
     getPlayersInRoom(room).then(function(res) {
-      console.log('get players result: ' + res);
+      console.log('get players result: ');
       var obj = null;
 
-      if (res == null) {
+      if (res.length === 0) {
         console.log('res is empty');
         obj = {
           'players': player
         };
+
+        console.log('going to send to redis: ' + obj.players);
         resolve(client.hmsetAsync(room, obj));
 
       } else {
-        console.log('have res');
+        console.log('have res: ' + res);
         obj = {
           'players': res + ',' + player
         };
+        console.log('going to send to redis: ' + obj.players);
         resolve(client.hmsetAsync(room, obj));
       }
     }).catch(function(err) {
-      console.log('');
       reject(err);
     });
   });
@@ -97,7 +105,7 @@ function leaveRoom(room, player) {
     console.log('get players result: ' + res);
     var obj = null;
 
-    if (res == null) {
+    if (res == null || res.length === 0) {
       console.log('res is empty');
 
     } else {
@@ -123,4 +131,5 @@ module.exports = {
   deleteRoom: deleteRoom,
   joinRoom: joinRoom,
   leaveRoom: leaveRoom,
+  roomExists: roomExists,
 };
