@@ -20,9 +20,18 @@ function handlePlayerSocket(redis, allConns, conn, message) {
 
 function joinRoom(conn, room, player) {
   //TODO: CHECK FOR ERRORS!
+  var code = room.substring(5);
+  if(!roomExists(room)) {
+    write(conn, {
+      type: 'join_room',
+      result: false,
+      reason: 'No games with the code ' + code + ' found'
+    });
+    return;
+  }
+
   // user with same names
   // already 4 players
-  // room exists
 
   console.log('socket player joining ' + room);
 
@@ -52,6 +61,10 @@ function joinRoom(conn, room, player) {
     console.log('error joining room');
     sendError(conn, err);
   });
+}
+
+function roomExists() {
+
 }
 
 function write(conn, obj) {
