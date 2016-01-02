@@ -38,11 +38,11 @@ router.get('/photos', function(req, res) {
       var response = [];
       _.each(photos, function(data) {
         var url = photoURL;
-        url = url.replace('$1', data.farm);
-        url = url.replace('$2', data.server);
-        url = url.replace('$3', data.id);
-        url = url.replace('$4', data.secret);
-        url = url.replace('$5', 'q');
+        url = url.replace('$1', data.farm)
+          .replace('$2', data.server)
+          .replace('$3', data.id)
+          .replace('$4', data.secret)
+          .replace('$5', 'q');
 
         var photo = {
           id: data.id,
@@ -82,11 +82,11 @@ router.get('/photos/:id', function(req, res) {
       var url = photoURL;
       var data = result.photo;
 
-      url = url.replace('$1', data.farm);
-      url = url.replace('$2', data.server);
-      url = url.replace('$3', data.id);
-      url = url.replace('$4', data.secret);
-      url = url.replace('$5', req.query.sizing);
+      url = url.replace('$1', data.farm)
+      .replace('$2', data.server)
+      .replace('$3', data.id)
+      .replace('$4', data.secret)
+      .replace('$5', req.query.sizing);
 
       var photo = {
         id: data.id,
