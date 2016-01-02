@@ -102,16 +102,13 @@ router.get('/:id', function(req, res) {
       } else {
         var tagQuery = "SELECT characteristic_id FROM tags WHERE place_id = $1";
 
-        db.query(tagQuery, values)
-        .then(function(result) {
-
-          var tags = [];
+        db.query(tagQuery, values).then(function(result) {
+          row.tags = [];
 
           _.each(result.rows, function(tag) {
-            tags.push(tag.characteristic_id);
+            row.tags.push(tag.characteristic_id);
           });
 
-          row.tags = tags;
           res.status(200).send(row);
         }).catch(sendError);
       }
