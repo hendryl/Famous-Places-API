@@ -8,21 +8,43 @@ function prepareHandler(redis, allConns) {
   redisService = redis;
 }
 
-function handleMessage(redis, allConns, conn, message) {
+function handleMessage(conn, message) {
   if (message.type == null) {
     writeService.writeError(conn);
 
   } else if (message.type === 'join_room') {
     joinRoomWrapper(conn, message.name, message.player);
 
-  } else {
+  } else if (message.type === 'players_ready') {
+    handlePlayersReady(conn);
+
+  }else {
     writeService.writeError('Unknown message type');
   }
 }
 
+function handlePlayersReady(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'players_ready'
+  };
+
+  redisService.getRoomOwner(room).then(function(owner) {
+    writeService.write(conns[owner], message);
+  });
+
+  redisService.getPlayersInRoom(room).then(function(players) {
+    _.each(players, function(p) {
+      console.log('sending to ' + p);
+      writeService.write(conns[p], message);
+    });
+  });
+}
+
 function disconnect(conn) {
   //send info to owner that player disconnected
-  var room = 'room:' + conn.room;
+  var room = redisService.getRoomNameForCode(conn.room);
+
   redisService.getRoomOwner(room).then(function(owner) {
 
     if (owner == null) {
@@ -40,10 +62,11 @@ function disconnect(conn) {
 }
 
 function joinRoomWrapper(conn, code, player) {
-  var room = 'room:' + code;
+  var room = redisService.getRoomNameForCode(code);
+
   console.log('checking if player can join');
 
-  checkRoomExists.then(function(exist) {
+  checkRoomExists(room).then(function(exist) {
     if(!exist) {
       writeService.writeJoinError(conn, 'No games with the code ' + code + ' found');
       return;

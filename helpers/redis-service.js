@@ -3,6 +3,10 @@ var redis = require('redis');
 var _ = require('underscore');
 var client = null;
 
+function getRoomNameForCode(code) {
+  return 'room:' + code;
+}
+
 function startRedis() {
   bluebird.promisifyAll(redis.RedisClient.prototype);
   bluebird.promisifyAll(redis.Multi.prototype);
@@ -47,7 +51,8 @@ function getPlayersInRoom(room) {
       if (res != null && res.length !== 0) {
         console.log('splitting res: ' + res);
         players = res.split(',');
-        console.log('players after split:' + players);
+        console.log('players after split:');
+        console.log(players);
       }
       resolve(players);
     }).catch(function(err) {
@@ -122,6 +127,7 @@ function leaveRoom(room, player) {
 }
 
 module.exports = {
+  getRoomNameForCode: getRoomNameForCode,
   start: startRedis,
   stop: stopRedis,
   getRoomList: getRoomList,

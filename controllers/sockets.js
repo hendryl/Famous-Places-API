@@ -63,8 +63,8 @@ function createServer(server) {
   createConnectionHandlers(sockServer);
   redisService.start();
 
-  ownerSocket.prepareHandler(conns, redisService);
-  playerSocket.prepareHandler(conns, redisService);
+  ownerSocket.prepareHandler(redisService, conns);
+  playerSocket.prepareHandler(redisService, conns);
 }
 
 module.exports = createServer;

@@ -10,22 +10,16 @@ function prepareHandler(redis, allConns) {
 }
 
 function handleMessage(conn, message) {
-  var room = null;
-
   if (message.type == null) {
     writeService.writeError(conn);
-    
+
   } else if (message.type === 'create_room') {
-    conn.room = message.name;
     conn.role = 'owner';
 
-    room = 'room:' + conn.room;
-    var owner = conn.id;
-    createRoom(conn, room, owner);
+    createRoom(conn, message.name);
 
   } else if (message.type === 'delete_room') {
-    room = 'room:' + message.name;
-    deleteRoom(conn, room);
+    deleteRoom(conn);
     conn.room = undefined;
 
   } else {
@@ -33,18 +27,27 @@ function handleMessage(conn, message) {
   }
 }
 
-function createRoom(conn, room, owner) {
+function createRoom(conn, code) {
+  console.log(redisService);
+  console.log(redisService.getRoomNameForCode);
+  var room = redisService.getRoomNameForCode(code);
+  var owner = conn.id;
+
   redisService.createRoom(room, owner).then(function(res) {
     writeService.write(conn, {
       type: 'create_room',
       result: true
     });
+    conn.room = code;
+
   }).catch(function(err) {
     writeService.writeError(conn, err);
   });
 }
 
-function deleteRoom(conn, room) {
+function deleteRoom(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+
   redisService.deleteRoom(room).then(function(res) {
     writeService.write(conn, {
       type: 'delete_room',
@@ -56,7 +59,7 @@ function deleteRoom(conn, room) {
 }
 
 function disconnect(conn) {
-  var room = 'room:' + conn.room;
+  var room = redisService.getRoomNameForCode(conn.room);
 
   redisService.getPlayersInRoom(room).then(function(players) {
     var json = JSON.stringify({
