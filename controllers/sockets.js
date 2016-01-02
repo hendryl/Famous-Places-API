@@ -1,5 +1,5 @@
 var redisService = require('../helpers/redis-service');
-var handleOwnerSocket = require('./socket.owner');
+var ownerSocket = require('./socket.owner');
 var handlePlayerSocket = require('./socket.player');
 var gameUtils = require('../helpers/game-utils');
 var _ = require('underscore');
@@ -33,7 +33,7 @@ function createConnectionHandlers(server) {
         conn.write(json);
 
       } else if (message.role === 'owner') {
-        handleOwnerSocket(redisService, conns, conn, message);
+        ownerSocket.handleMessage(redisService, conns, conn, message);
       } else if (message.role === 'player') {
         handlePlayerSocket(redisService, conns, conn, message);
       } else {
@@ -113,6 +113,8 @@ function createServer(server) {
   sockServer.installHandlers(server);
   createConnectionHandlers(sockServer);
   redisService.start();
+
+  ownerSocket.prepareHandler(conns, redisService);
 }
 
 module.exports = createServer;

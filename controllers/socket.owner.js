@@ -1,10 +1,12 @@
 var redisService = null;
 var conns = {};
 
-function handleOwnerSocket(redis, allConns, conn, message) {
+function prepareHandler(redis, allConns) {
   conns = allConns;
   redisService = redis;
+}
 
+function handleMessage(conn, message) {
   var room = null;
 
   if (message.type == null) {
@@ -64,4 +66,7 @@ function sendError(conn, reason) {
   });
 }
 
-module.exports = handleOwnerSocket;
+module.exports = {
+  prepareHandler: prepareHandler,
+  handleMessage: handleMessage
+};
