@@ -2,10 +2,12 @@ var conns = {};
 var redisService = null;
 var _ = require('underscore');
 
-function handlePlayerSocket(redis, allConns, conn, message) {
+function prepareHandler(redis, allConns) {
   conns = allConns;
   redisService = redis;
+}
 
+function handleMessage(redis, allConns, conn, message) {
   if (message.type == null) {
     sendError(conn);
 
@@ -129,4 +131,7 @@ function sendError(conn, reason) {
   });
 }
 
-module.exports = handlePlayerSocket;
+module.exports = {
+  prepareHandler: prepareHandler,
+  handleMessage: handleMessage
+};
