@@ -87,6 +87,9 @@ router.get('/:id', function(req, res) {
 
   var values = [req.params.id];
 
+  var sendError = function(error) {
+    res.status(500).send(error);
+  };
 
   db.query(query, values)
     .then(function(result) {
@@ -112,14 +115,8 @@ router.get('/:id', function(req, res) {
         row.characteristics = utils.parseCharacteristicData(linkResults[2].rows);
 
         res.status(200).send(row);
-      })
-      .catch(function(error) {
-        res.status(500).send(error);
-      });
-    })
-    .catch(function(error) {
-      res.status(500).send(error);
-    });
+      }).catch(sendError);
+    }).catch(sendError);
 });
 
 router.put('/:id', function(req, res) {

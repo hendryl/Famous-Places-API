@@ -56,6 +56,10 @@ router.post('/', function(req, res) {
     return;
   }
 
+  var sendError = function(error) {
+    res.status(500).send(error);
+  };
+
   var query = 'INSERT INTO places ("country_id", "name", "description", "photo_id", "latitude", "longitude", "link", "enabled") VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING place_id';
 
   db.query(query, _.initial(values))
@@ -67,14 +71,8 @@ router.post('/', function(req, res) {
       db.query(query)
         .then(function(result) {
           res.status(201).send(row);
-        })
-        .catch(function(error) {
-          res.status(500).send(error);
-        });
-    })
-    .catch(function(error) {
-      res.status(500).send(error);
-    });
+        }).catch(sendError);
+    }).catch(sendError);
 });
 
 router.use('/:id', function(req, res, next) {
@@ -90,6 +88,10 @@ router.use('/:id', function(req, res, next) {
 router.get('/:id', function(req, res) {
   var query = "SELECT * FROM places WHERE place_id = $1";
   var values = [req.params.id];
+
+  var sendError = function(error) {
+    res.status(500).send(error);
+  };
 
   db.query(query, values)
     .then(function(result) {
@@ -111,15 +113,9 @@ router.get('/:id', function(req, res) {
 
           row.tags = tags;
           res.status(200).send(row);
-        })
-        .catch(function(error) {
-          res.status(500).send(error);
-        });
+        }).catch(sendError);
       }
-    })
-    .catch(function(error) {
-      res.status(500).send(error);
-    });
+    }).catch(sendError);
 });
 
 router.put('/:id', function(req, res) {
