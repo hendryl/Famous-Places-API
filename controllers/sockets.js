@@ -50,31 +50,10 @@ function createConnectionHandlers(server) {
       if (conn.role === 'owner') {
         ownerSocket.disconnect(conn);
       } else {
-        disconnectPlayer(conn);
+        playerSocket.disconnect(conn);
       }
     });
   });
-}
-
-function disconnectPlayer(conn) {
-  //send info to owner that player disconnected
-  var room = 'room:' + conn.room;
-  redisService.getRoomOwner(room).then(function(owner) {
-
-    if(owner == null) {
-      console.log('owner already disconnected');
-      return;
-    }
-
-    var json = JSON.stringify({
-      'type': 'player_disconnect',
-      'id': conn.id
-    });
-
-    conns[owner].write(json);
-  });
-
-  redisService.leaveRoom(room, conn.id);
 }
 
 function createServer(server) {

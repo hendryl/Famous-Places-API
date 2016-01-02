@@ -21,6 +21,27 @@ function handleMessage(redis, allConns, conn, message) {
   }
 }
 
+function disconnect(conn) {
+  //send info to owner that player disconnected
+  var room = 'room:' + conn.room;
+  redisService.getRoomOwner(room).then(function(owner) {
+
+    if(owner == null) {
+      console.log('owner already disconnected');
+      return;
+    }
+
+    var json = JSON.stringify({
+      'type': 'player_disconnect',
+      'id': conn.id
+    });
+
+    conns[owner].write(json);
+  });
+
+  redisService.leaveRoom(room, conn.id);
+}
+
 function joinRoomWrapper(conn, room, player) {
   var code = room.substring(5);
 
@@ -133,5 +154,6 @@ function sendError(conn, reason) {
 
 module.exports = {
   prepareHandler: prepareHandler,
-  handleMessage: handleMessage
+  handleMessage: handleMessage,
+  disconnect: disconnect
 };
