@@ -30,8 +30,7 @@ router.post('/', function(req, res) {
     res.status(500).send(error);
   };
 
-  var passwordPromise = passwordMaker.createPassword();
-  passwordPromise.then(function(result) {
+  passwordMaker.createPassword().then(function(result) {
     values.push(result);
     createGame(values).then(function(result) {
       var row = result.rows[0];
