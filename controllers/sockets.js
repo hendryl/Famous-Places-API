@@ -1,4 +1,5 @@
 var redisService = require('../helpers/redis-service');
+var writeService = require('../helpers/write-service');
 var ownerSocket = require('./socket-owner');
 var playerSocket = require('./socket-player');
 
@@ -20,26 +21,19 @@ function createConnectionHandlers(server) {
     conns[conn.id] = conn;
 
     conn.on('data', function(message) {
-      var json = null;
       message = JSON.parse(message);
 
       if (message.role === null) {
-        json = JSON.stringify({
-          type: 'error',
-          reason: 'Undefined role'
-        });
-        conn.write(json);
+        writeService.writeError(conn, 'Undefined role');
 
       } else if (message.role === 'owner') {
         ownerSocket.handleMessage(conn, message);
+
       } else if (message.role === 'player') {
         playerSocket.handleMessage(conn, message);
+
       } else {
-        json = JSON.stringify({
-          type: 'error',
-          reason: 'Unknown role'
-        });
-        conn.write(json);
+        writeService.writeError(conn, 'Unknown role');
       }
     });
 
