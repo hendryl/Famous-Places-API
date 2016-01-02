@@ -1,6 +1,6 @@
 var redisService = require('../helpers/redis-service');
-var ownerSocket = require('./socket.owner');
-var playerSocket = require('./socket.player');
+var ownerSocket = require('./socket-owner');
+var playerSocket = require('./socket-player');
 
 var conns = {};
 
