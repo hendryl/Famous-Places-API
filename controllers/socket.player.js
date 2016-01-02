@@ -1,6 +1,7 @@
 var conns = {};
 var redisService = null;
 var _ = require('underscore');
+var writeService = require('../helpers/write-service');
 
 function prepareHandler(redis, allConns) {
   conns = allConns;
@@ -9,13 +10,13 @@ function prepareHandler(redis, allConns) {
 
 function handleMessage(redis, allConns, conn, message) {
   if (message.type == null) {
-    sendError(conn);
+    writeService.writeError(conn);
 
   } else if (message.type === 'join_room') {
     joinRoomWrapper(conn, message.name, message.player);
 
   } else {
-    sendError('Unknown message type');
+    writeService.writeError('Unknown message type');
   }
 }
 
@@ -29,12 +30,10 @@ function disconnect(conn) {
       return;
     }
 
-    var json = JSON.stringify({
+    writeService.write(conns[owner], {
       'type': 'player_disconnect',
       'id': conn.id
     });
-
-    conns[owner].write(json);
   });
 
   redisService.leaveRoom(room, conn.id);
@@ -46,7 +45,7 @@ function joinRoomWrapper(conn, code, player) {
 
   checkRoomExists.then(function(exist) {
     if(!exist) {
-      writeJoinError(conn, 'No games with the code ' + code + ' found');
+      writeService.writeJoinError(conn, 'No games with the code ' + code + ' found');
       return;
     }
 
@@ -56,14 +55,14 @@ function joinRoomWrapper(conn, code, player) {
       console.log('players: ' + players + ' | amount: ' + players.length);
 
       if (players.length === 4) {
-        writeJoinError(conn, 'Game is full');
+        writeService.writeJoinError(conn, 'Game is full');
         return;
       }
 
       console.log('game has less than 4 players');
 
       if (players.length > 0 && checkSameName(players, player)) {
-        writeJoinError(conn, 'Name is used, please use another name');
+        writeService.writeJoinError(conn, 'Name is used, please use another name');
         return;
       }
 
@@ -101,7 +100,7 @@ function joinRoom(conn, room, player) {
     conn.room = room.substring(5);
     conn.role = 'player';
     conn.player = player;
-    write(conn, {
+    writeService.write(conn, {
       type: 'join_room',
       result: true
     });
@@ -110,40 +109,18 @@ function joinRoom(conn, room, player) {
       console.log('get owner successful');
       var ownerConn = conns[owner];
 
-      write(ownerConn, {
+      writeService.write(ownerConn, {
         type: 'join_room',
         name: player,
         id: conn.id
       });
     }).catch(function(err) {
       console.log('failed owner get/write');
-      sendError(conn, err);
+      writeService.writeError(conn, err);
     });
   }, function(err) {
     console.log('error joining room');
-    sendError(conn, err);
-  });
-}
-
-function write(conn, obj) {
-  var json = JSON.stringify(obj);
-  conn.write(json);
-}
-
-function writeJoinError(conn, reason) {
-  write(conn, {
-    type: 'join_room',
-    result: false,
-    reason: reason
-  });
-}
-
-function sendError(conn, reason) {
-  reason = reason || 'Undefined message type';
-
-  write(conn, {
-    type: 'error',
-    reason: reason
+    writeService.writeError(conn, err);
   });
 }
 
