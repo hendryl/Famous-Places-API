@@ -12,9 +12,7 @@ function handleMessage(redis, allConns, conn, message) {
     sendError(conn);
 
   } else if (message.type === 'join_room') {
-    var room = 'room:' + message.name;
-    var player = message.player;
-    joinRoomWrapper(conn, room, player);
+    joinRoomWrapper(conn, message.name, message.player);
 
   } else {
     sendError('Unknown message type');
@@ -42,20 +40,18 @@ function disconnect(conn) {
   redisService.leaveRoom(room, conn.id);
 }
 
-function joinRoomWrapper(conn, room, player) {
-  var code = room.substring(5);
+function joinRoomWrapper(conn, code, player) {
+  var room = 'room:' + message.name;
 
   console.log('checking if player can join');
 
-  roomExists(room).then(function(res) {
-    //check room existence
-    if (res < 1) {
+  checkRoomExists.then(function(exist) {
+    if(!exist) {
       write(conn, {
         type: 'join_room',
         result: false,
         reason: 'No games with the code ' + code + ' found'
       });
-      return;
     }
 
     console.log('room exists');
@@ -75,21 +71,29 @@ function joinRoomWrapper(conn, room, player) {
       console.log('game has less than 4 players');
 
       //check same name
-      if (players.length > 0) {
-        if (checkSameName(players, player)) {
-          write(conn, {
-            type: 'join_room',
-            result: false,
-            reason: 'Name is used, please use another name'
-          });
-          return;
-        }
+      if (players.length > 0 && checkSameName(players, player)) {
+        write(conn, {
+          type: 'join_room',
+          result: false,
+          reason: 'Name is used, please use another name'
+        });
+        return;
 
         console.log('player has different name than players in game');
       }
 
       console.log('player can join game');
       joinRoom(conn, room, player);
+    });
+  });
+}
+
+function checkRoomExists(room) {
+  return new Promise(function(resolve, reject) {
+    redisService.roomExists(room).then(function(res) {
+      //check room existence
+      var result = res < 1 ? false : true;
+      resolve(result);
     });
   });
 }
@@ -134,10 +138,6 @@ function joinRoom(conn, room, player) {
     console.log('error joining room');
     sendError(conn, err);
   });
-}
-
-function roomExists(room) {
-  return redisService.roomExists(room);
 }
 
 function write(conn, obj) {
