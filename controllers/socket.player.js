@@ -1,7 +1,7 @@
-var conns = {};
-var redisService = null;
 var _ = require('underscore');
 var writeService = require('../helpers/write-service');
+var conns = {};
+var redisService = null;
 
 function prepareHandler(redis, allConns) {
   conns = allConns;
