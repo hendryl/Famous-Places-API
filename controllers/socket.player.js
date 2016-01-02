@@ -26,7 +26,7 @@ function disconnect(conn) {
   var room = 'room:' + conn.room;
   redisService.getRoomOwner(room).then(function(owner) {
 
-    if(owner == null) {
+    if (owner == null) {
       console.log('owner already disconnected');
       return;
     }
@@ -75,15 +75,8 @@ function joinRoomWrapper(conn, room, player) {
       console.log('game has less than 4 players');
 
       //check same name
-      if(players.length > 0) {
-        console.log('getting player names from list of connections');
-        var playerNames = _.map(players, function(n) {
-          return conns[n].player;
-        });
-
-        console.log('player names: ' + playerNames);
-
-        if (_.contains(playerNames, player)) {
+      if (players.length > 0) {
+        if (checkSameName(players, player)) {
           write(conn, {
             type: 'join_room',
             result: false,
@@ -91,15 +84,24 @@ function joinRoomWrapper(conn, room, player) {
           });
           return;
         }
+
         console.log('player has different name than players in game');
       }
 
       console.log('player can join game');
-
-      //can join room
       joinRoom(conn, room, player);
     });
   });
+}
+
+function checkSameName(players, player) {
+  console.log('getting player names from list of connections');
+  var playerNames = _.map(players, function(n) {
+    return conns[n].player;
+  });
+
+  console.log('player names: ' + playerNames);
+  return _.contains(playerNames, player));
 }
 
 function joinRoom(conn, room, player) {
