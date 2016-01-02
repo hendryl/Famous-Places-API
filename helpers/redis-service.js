@@ -44,19 +44,24 @@ function getRoomOwner(room) {
 
 function getPlayersInRoom(room) {
   return new Promise(function(resolve, reject) {
-    console.log('getting list of players from redis');
+    console.log('getting list of players in ' + room + ' from redis');
     client.hgetAsync(room, 'players').then(function(res) {
       var players = [];
 
       if (res != null && res.length !== 0) {
-        console.log('splitting res: ' + res);
-        players = res.split(',');
-        console.log('players after split:');
+        console.log('get players ' + room + ' splitting res');
+
+        if(res.indexOf(',') !== -1) {
+          players = res.split(',');
+        } else {
+          players.push(res);
+        }
+        console.log('get players ' + room + ' compute results:');
         console.log(players);
       }
       resolve(players);
     }).catch(function(err) {
-      console.log('failed to get players');
+      console.log('get players ' + room + ' failed to get players');
       reject(err);
     });
   });
@@ -75,28 +80,28 @@ function deleteRoom(room) {
 }
 
 function joinRoom(room, player) {
-  console.log('joining room');
+  console.log('joining ' + room);
 
   return new Promise(function(resolve, reject) {
     getPlayersInRoom(room).then(function(res) {
-      console.log('get players result: ');
       var obj = null;
 
       if (res.length === 0) {
-        console.log('res is empty');
+        console.log('join ' + room + ' res is empty');
         obj = {
           'players': player
         };
 
-        console.log('going to send to redis: ' + obj.players);
+        console.log('join ' + room + ' going to send to redis: ' + obj.players);
         resolve(client.hmsetAsync(room, obj));
 
       } else {
-        console.log('have res: ' + res);
+        console.log('join ' + room + ' have res: ' + res);
+        res = res.join();
         obj = {
           'players': res + ',' + player
         };
-        console.log('going to send to redis: ' + obj.players);
+        console.log('join ' + room + ' going to send to redis: ' + obj.players);
         resolve(client.hmsetAsync(room, obj));
       }
     }).catch(function(err) {
@@ -106,25 +111,29 @@ function joinRoom(room, player) {
 }
 
 function leaveRoom(room, player) {
+  console.log(player + ' is leaving ' + room);
   getPlayersInRoom(room).then(function(res) {
-    console.log('get players result: ' + res);
-    var obj = null;
+    console.log('leave ' + room + ' get players result: ' + res);
 
     if (res == null || res.length === 0) {
-      console.log('res is empty');
+      console.log('leave ' + room + ' res is empty');
 
     } else {
-      console.log('have res');
-      obj = res.split(',');
+      console.log('leave ' + room + ' have res');
+      console.log(res);
 
-      _.remove(obj, function(n) {
-        return n === player;
-      });
+      var obj = _.without(res, player);
 
-      client.hmset(room, obj);
+      obj = {
+        players: obj.join()
+      };
+
+      console.log('leave ' + room + ' update data in redis');
+      client.hmset(room, obj, redis.print);
     }
   });
 }
+
 
 module.exports = {
   getRoomNameForCode: getRoomNameForCode,

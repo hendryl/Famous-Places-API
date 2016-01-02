@@ -28,8 +28,6 @@ function handleMessage(conn, message) {
 }
 
 function createRoom(conn, code) {
-  console.log(redisService);
-  console.log(redisService.getRoomNameForCode);
   var room = redisService.getRoomNameForCode(code);
   var owner = conn.id;
 
