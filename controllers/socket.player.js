@@ -41,48 +41,33 @@ function disconnect(conn) {
 }
 
 function joinRoomWrapper(conn, code, player) {
-  var room = 'room:' + message.name;
-
+  var room = 'room:' + code;
   console.log('checking if player can join');
 
   checkRoomExists.then(function(exist) {
     if(!exist) {
-      write(conn, {
-        type: 'join_room',
-        result: false,
-        reason: 'No games with the code ' + code + ' found'
-      });
+      writeJoinError(conn, 'No games with the code ' + code + ' found');
+      return;
     }
 
     console.log('room exists');
 
     redisService.getPlayersInRoom(room).then(function(players) {
       console.log('players: ' + players + ' | amount: ' + players.length);
-      //check amount of players
+
       if (players.length === 4) {
-        console.log('player');
-        write(conn, {
-          type: 'join_room',
-          result: false,
-          reason: 'Game is full'
-        });
+        writeJoinError(conn, 'Game is full');
         return;
       }
+
       console.log('game has less than 4 players');
 
-      //check same name
       if (players.length > 0 && checkSameName(players, player)) {
-        write(conn, {
-          type: 'join_room',
-          result: false,
-          reason: 'Name is used, please use another name'
-        });
+        writeJoinError(conn, 'Name is used, please use another name');
         return;
-
-        console.log('player has different name than players in game');
       }
 
-      console.log('player can join game');
+      console.log('player has unique name');
       joinRoom(conn, room, player);
     });
   });
@@ -105,7 +90,7 @@ function checkSameName(players, player) {
   });
 
   console.log('player names: ' + playerNames);
-  return _.contains(playerNames, player));
+  return _.contains(playerNames, player);
 }
 
 function joinRoom(conn, room, player) {
@@ -143,6 +128,14 @@ function joinRoom(conn, room, player) {
 function write(conn, obj) {
   var json = JSON.stringify(obj);
   conn.write(json);
+}
+
+function writeJoinError(conn, reason) {
+  write(conn, {
+    type: 'join_room',
+    result: false,
+    reason: reason
+  });
 }
 
 function sendError(conn, reason) {
