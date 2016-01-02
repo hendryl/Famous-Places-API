@@ -1,3 +1,5 @@
+var _ = require('underscore');
+var gameUtils = require('../helpers/game-utils');
 var redisService = null;
 var conns = {};
 
@@ -52,6 +54,27 @@ function deleteRoom(conn, room) {
   });
 }
 
+function disconnect(conn) {
+  var room = 'room:' + conn.room;
+
+  redisService.getPlayersInRoom(room).then(function(players) {
+    var json = JSON.stringify({
+      'type': 'owner_disconnect'
+    });
+
+    _.each(players, function(n) {
+      console.log('writing to player ' + n);
+      conns[n].write(json);
+      conns[n].close();
+      conns[n] = undefined;
+    });
+  });
+
+  redisService.deleteRoom(room);
+  //end game in database
+  gameUtils.endGame(conn.room);
+}
+
 function write(conn, obj) {
   var json = JSON.stringify(obj);
   conn.write(json);
@@ -68,5 +91,6 @@ function sendError(conn, reason) {
 
 module.exports = {
   prepareHandler: prepareHandler,
-  handleMessage: handleMessage
+  handleMessage: handleMessage,
+  disconnect: disconnect
 };
