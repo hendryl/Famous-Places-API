@@ -72,10 +72,4 @@ router.get('/:id/questions', function(req, res) {
   });
 });
 
-
-/* disconnection (desktop web closed)
-game is marked as done
-
-TODO: disconnect game
-*/
 module.exports = router;
