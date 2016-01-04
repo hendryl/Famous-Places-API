@@ -19,8 +19,7 @@ function handleMessage(conn, message) {
     createRoom(conn, message.name);
 
   } else if (message.type === 'delete_room') {
-    deleteRoom(conn);
-    conn.room = undefined;
+    disconnect(conn);
 
   } else if (message.type === 'game_ready') {
     sendGameReady(conn);
@@ -46,19 +45,6 @@ function createRoom(conn, code) {
   });
 }
 
-function deleteRoom(conn) {
-  var room = redisService.getRoomNameForCode(conn.room);
-
-  redisService.deleteRoom(room).then(function(res) {
-    writeService.write(conn, {
-      type: 'delete_room',
-      result: true
-    });
-  }).catch(function(err) {
-    writeService.writeError(conn, err);
-  });
-}
-
 function disconnect(conn) {
   var room = redisService.getRoomNameForCode(conn.room);
 
@@ -78,6 +64,9 @@ function disconnect(conn) {
   redisService.deleteRoom(room);
   //end game in database
   gameUtils.endGame(conn.room);
+
+  conn.close();
+  conns[conn.id] = undefined;
 }
 
 module.exports = {

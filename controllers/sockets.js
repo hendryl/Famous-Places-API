@@ -39,7 +39,6 @@ function createConnectionHandlers(server) {
 
     conn.on('close', function() {
       console.log('connection close ' + conn);
-      conns[conn.id] = undefined;
 
       if (conn.role === 'owner') {
         ownerSocket.disconnect(conn);
