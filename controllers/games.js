@@ -38,8 +38,15 @@ router.post('/', function(req, res) {
       console.log("Game #" + row.game_id + " successfully created");
       console.log("Password for game #" + row.game_id + " is " + values[1]);
 
-      questionsService.createQuestions(values[0], 5).then(function(result) {
-        row.questions = _.sortBy(result, function(n) {
+      var musicPromise = db.query('SELECT music FROM modes WHERE mode_id = ' + values[0]);
+      var questionsPromise = questionsService.createQuestions(values[0], 5);
+
+      Promise.all([musicPromise, questionsPromise]).then(function(results) {
+        var musicResult = results[0];
+        var questionsResult = results[1];
+
+        row.music = musicResult.rows[0].music;
+        row.questions = _.sortBy(questionsResult, function(n) {
           return n.place_id;
         });
         questionsService.saveQuestions(row.game_id, result).then(function(result) {
