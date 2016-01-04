@@ -22,6 +22,9 @@ function handleMessage(conn, message) {
     deleteRoom(conn);
     conn.room = undefined;
 
+  } else if (message.type === 'game_ready') {
+    sendGameReady(conn);
+
   } else {
     writeService.writeError('Unknown message type');
   }
@@ -82,3 +85,17 @@ module.exports = {
   handleMessage: handleMessage,
   disconnect: disconnect
 };
+
+function sendGameReady(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+
+  redisService.getPlayersInRoom(room).then(function(players) {
+    var obj = {
+      'type': 'game_ready'
+    };
+
+    _.each(players, function(n) {
+      writeService.write(conns[n], obj);
+    });
+  });
+}
