@@ -69,7 +69,8 @@ function getPlayersInRoom(room) {
 
 function createRoom(room, owner) {
   var obj = {
-    'owner': owner
+    'owner': owner,
+    'inLobby': 'yes'
   };
   return client.hmsetAsync(room, obj);
 }
@@ -77,6 +78,14 @@ function createRoom(room, owner) {
 function deleteRoom(room) {
   console.log('delete ' + room);
   client.del(room, redis.print);
+}
+
+function isInLobby(room) {
+  return client.hgetAsync(room, 'inLobby');
+}
+
+function setInLobby(room, value) {
+  client.hset(room, 'inLobby', value);
 }
 
 function joinRoom(room, player) {
@@ -142,6 +151,8 @@ module.exports = {
   getRoomList: getRoomList,
   getRoomOwner: getRoomOwner,
   getPlayersInRoom: getPlayersInRoom,
+  isInLobby: isInLobby,
+  setInLobby: setInLobby,
   createRoom: createRoom,
   deleteRoom: deleteRoom,
   joinRoom: joinRoom,

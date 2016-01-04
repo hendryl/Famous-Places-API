@@ -18,7 +18,7 @@ function handleMessage(conn, message) {
   } else if (message.type === 'players_ready') {
     handlePlayersReady(conn);
 
-  }else {
+  } else {
     writeService.writeError('Unknown message type');
   }
 }
@@ -28,6 +28,8 @@ function handlePlayersReady(conn) {
   var message = {
     'type': 'players_ready'
   };
+
+  redisService.setInLobby(room, 'no');
 
   redisService.getRoomOwner(room).then(function(owner) {
     writeService.write(conns[owner], message);
@@ -67,30 +69,38 @@ function joinRoomWrapper(conn, code, player) {
   console.log('checking if player can join');
 
   checkRoomExists(room).then(function(exist) {
-    if(!exist) {
+    if (!exist) {
       writeService.writeJoinError(conn, 'No games with the code ' + code + ' found');
       return;
     }
 
     console.log('room exists');
 
-    redisService.getPlayersInRoom(room).then(function(players) {
-      console.log('players: ' + players + ' | amount: ' + players.length);
-
-      if (players.length === 4) {
-        writeService.writeJoinError(conn, 'Game is full');
+    //check still in lobby. Player cannot join if game already started
+    redisService.isInLobby(room).then(function(inLobby) {
+      if (inLobby !== 'yes') {
+        writeService.writeJoinError(conn, 'Game already started.');
         return;
       }
 
-      console.log('game has less than 4 players');
+      redisService.getPlayersInRoom(room).then(function(players) {
+        console.log('players: ' + players + ' | amount: ' + players.length);
 
-      if (players.length > 0 && checkSameName(players, player)) {
-        writeService.writeJoinError(conn, 'Name is used, please use another name');
-        return;
-      }
+        if (players.length === 4) {
+          writeService.writeJoinError(conn, 'Game is full');
+          return;
+        }
 
-      console.log('player has unique name');
-      joinRoom(conn, room, player);
+        console.log('game has less than 4 players');
+
+        if (players.length > 0 && checkSameName(players, player)) {
+          writeService.writeJoinError(conn, 'Name is used, please use another name');
+          return;
+        }
+
+        console.log('player has unique name');
+        joinRoom(conn, room, player);
+      });
     });
   });
 }
