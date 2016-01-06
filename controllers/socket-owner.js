@@ -26,6 +26,9 @@ function handleMessage(conn, message) {
   } else if (message.type === 'start_round') {
     startRound(conn);
 
+  } else if (message.type === 'end_round') {
+    endRound(conn);
+
   } else {
     writeService.writeError('Unknown message type');
   }
@@ -98,6 +101,14 @@ function sendGameReady(conn) {
 function startRound(conn) {
   var obj = {
     'type': 'start_round'
+  };
+
+  sendToPlayers(conn, obj);
+}
+
+function endRound(conn) {
+  var obj = {
+    'type': 'end_round'
   };
 
   sendToPlayers(conn, obj);
