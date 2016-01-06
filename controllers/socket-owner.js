@@ -24,6 +24,9 @@ function handleMessage(conn, message) {
   } else if (message.type === 'game_ready') {
     sendGameReady(conn);
 
+  } else if (message.type === 'start_round') {
+    startRound(conn);
+
   } else {
     writeService.writeError('Unknown message type');
   }
@@ -81,6 +84,20 @@ function sendGameReady(conn) {
   redisService.getPlayersInRoom(room).then(function(players) {
     var obj = {
       'type': 'game_ready'
+    };
+
+    _.each(players, function(n) {
+      writeService.write(conns[n], obj);
+    });
+  });
+}
+
+function startRound(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+
+  redisService.getPlayersInRoom(room).then(function(players) {
+    var obj = {
+      'type': 'start_round'
     };
 
     _.each(players, function(n) {
