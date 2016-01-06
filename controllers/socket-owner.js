@@ -15,7 +15,6 @@ function handleMessage(conn, message) {
 
   } else if (message.type === 'create_room') {
     conn.role = 'owner';
-
     createRoom(conn, message.name);
 
   } else if (message.type === 'delete_room') {
@@ -78,30 +77,28 @@ module.exports = {
   disconnect: disconnect
 };
 
-function sendGameReady(conn) {
+function sendToPlayers(conn, obj) {
   var room = redisService.getRoomNameForCode(conn.room);
 
   redisService.getPlayersInRoom(room).then(function(players) {
-    var obj = {
-      'type': 'game_ready'
-    };
-
     _.each(players, function(n) {
       writeService.write(conns[n], obj);
     });
   });
 }
 
+function sendGameReady(conn) {
+  var obj = {
+    'type': 'game_ready'
+  };
+
+  sendToPlayers(conn, obj);
+}
+
 function startRound(conn) {
-  var room = redisService.getRoomNameForCode(conn.room);
+  var obj = {
+    'type': 'start_round'
+  };
 
-  redisService.getPlayersInRoom(room).then(function(players) {
-    var obj = {
-      'type': 'start_round'
-    };
-
-    _.each(players, function(n) {
-      writeService.write(conns[n], obj);
-    });
-  });
+  sendToPlayers(conn, obj);
 }
