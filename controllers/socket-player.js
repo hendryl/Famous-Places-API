@@ -28,15 +28,15 @@ function handleMessage(conn, message) {
 
 function handleAnswer(conn, message) {
   var room = redisService.getRoomNameForCode(conn.room);
-  var message = {
-    'type': 'answer'
+  var obj = {
+    'type': 'answer',
     'lat': message.lat,
     'long': message.long,
     'round': message.round
-  }
+  };
 
   redisService.getRoomOwner(room).then(function(owner) {
-    writeService.write(conns[owner], message);
+    writeService.write(conns[owner], obj);
   });
 }
 

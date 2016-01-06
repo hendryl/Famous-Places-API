@@ -100,7 +100,7 @@ function sendGameReady(conn) {
 
 function sendStartRound(conn, round) {
   var obj = {
-    'type': 'start_round'
+    'type': 'start_round',
     'round': round
   };
 
@@ -109,7 +109,7 @@ function sendStartRound(conn, round) {
 
 function sendEndRound(conn, round) {
   var obj = {
-    'type': 'end_round'
+    'type': 'end_round',
     'round': round
   };
 
