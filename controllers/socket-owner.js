@@ -15,7 +15,6 @@ function handleMessage(conn, message) {
 
   } else if (message.type === 'create_room') {
     conn.role = 'owner';
-
     createRoom(conn, message.name);
 
   } else if (message.type === 'delete_room') {
@@ -23,6 +22,12 @@ function handleMessage(conn, message) {
 
   } else if (message.type === 'game_ready') {
     sendGameReady(conn);
+
+  } else if (message.type === 'start_round') {
+    sendStartRound(conn, message.round);
+
+  } else if (message.type === 'end_round') {
+    sendEndRound(conn, message.round);
 
   } else {
     writeService.writeError('Unknown message type');
@@ -75,16 +80,38 @@ module.exports = {
   disconnect: disconnect
 };
 
-function sendGameReady(conn) {
+function sendToPlayers(conn, obj) {
   var room = redisService.getRoomNameForCode(conn.room);
 
   redisService.getPlayersInRoom(room).then(function(players) {
-    var obj = {
-      'type': 'game_ready'
-    };
-
     _.each(players, function(n) {
       writeService.write(conns[n], obj);
     });
   });
+}
+
+function sendGameReady(conn) {
+  var obj = {
+    'type': 'game_ready'
+  };
+
+  sendToPlayers(conn, obj);
+}
+
+function sendStartRound(conn, round) {
+  var obj = {
+    'type': 'start_round',
+    'round': round
+  };
+
+  sendToPlayers(conn, obj);
+}
+
+function sendEndRound(conn, round) {
+  var obj = {
+    'type': 'end_round',
+    'round': round
+  };
+
+  sendToPlayers(conn, obj);
 }
