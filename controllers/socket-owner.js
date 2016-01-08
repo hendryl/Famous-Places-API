@@ -33,7 +33,7 @@ function handleMessage(conn, message) {
     sendEndScore(conn, message.haveNextRound);
 
   } else {
-    writeService.writeError('Unknown message type');
+    writeService.writeError(conn, 'Unknown message type');
   }
 }
 
