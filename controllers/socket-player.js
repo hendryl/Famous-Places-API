@@ -21,6 +21,9 @@ function handleMessage(conn, message) {
   } else if(message.type === 'answer') {
     handleAnswer(conn, message);
 
+  } else if(message.type === 'continue') {
+    handleContinue(conn);
+
   } else {
     writeService.writeError('Unknown message type');
   }
@@ -41,14 +44,7 @@ function handleAnswer(conn, message) {
   });
 }
 
-function handlePlayersReady(conn) {
-  var room = redisService.getRoomNameForCode(conn.room);
-  var message = {
-    'type': 'players_ready'
-  };
-
-  redisService.setInLobby(room, 'no');
-
+function broadcast(room, message) {
   redisService.getRoomOwner(room).then(function(owner) {
     writeService.write(conns[owner], message);
   });
@@ -61,12 +57,30 @@ function handlePlayersReady(conn) {
   });
 }
 
+function handlePlayersReady(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'players_ready'
+  };
+
+  redisService.setInLobby(room, 'no');
+  broadcast(room, message);
+}
+
+function handleContinue(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'continue'
+  };
+
+  broadcast(room, message);
+}
+
 function disconnect(conn) {
   //send info to owner that player disconnected
   var room = redisService.getRoomNameForCode(conn.room);
 
   redisService.getRoomOwner(room).then(function(owner) {
-
     if (owner == null) {
       console.log('owner already disconnected');
       return;

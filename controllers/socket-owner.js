@@ -29,8 +29,11 @@ function handleMessage(conn, message) {
   } else if (message.type === 'end_round') {
     sendEndRound(conn, message.round);
 
+  } else if(message.type === 'end_score') {
+    sendEndScore(conn, message.haveNextRound);
+
   } else {
-    writeService.writeError('Unknown message type');
+    writeService.writeError(conn, 'Unknown message type');
   }
 }
 
@@ -111,6 +114,15 @@ function sendEndRound(conn, round) {
   var obj = {
     'type': 'end_round',
     'round': round
+  };
+
+  sendToPlayers(conn, obj);
+}
+
+function sendEndScore(conn, haveNextRound) {
+  var obj = {
+    'type': 'end_score',
+    'haveNextRound': haveNextRound
   };
 
   sendToPlayers(conn, obj);
