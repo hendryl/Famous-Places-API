@@ -84,6 +84,7 @@ function isInLobby(room) {
   return client.hgetAsync(room, 'inLobby');
 }
 
+//value is yes or no
 function setInLobby(room, value) {
   client.hset(room, 'inLobby', value);
 }
@@ -143,6 +144,13 @@ function leaveRoom(room, player) {
   });
 }
 
+function renameRoom(oldCode, newCode) {
+  var oldName = getRoomNameForCode(oldCode);
+  var newName = getRoomNameForCode(newCode);
+
+  return client.renameAsync(oldName, newName);
+}
+
 
 module.exports = {
   getRoomNameForCode: getRoomNameForCode,
@@ -158,4 +166,5 @@ module.exports = {
   joinRoom: joinRoom,
   leaveRoom: leaveRoom,
   roomExists: roomExists,
+  renameRoom: renameRoom
 };
