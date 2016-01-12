@@ -107,14 +107,14 @@ function createSaveQuery(game, places) {
       string = string + ';';
     } else {
       string = string + ', ';
-    }
-    return string;
+    }    return string;
   })
   .reduce(function(memo, n) {
     return memo.toString() + n.toString();
   }, '')
   .value();
 
+  console.log(query + values);
   return query + values;
 }
 

@@ -49,7 +49,8 @@ router.post('/', function(req, res) {
         row.questions = _.sortBy(questionsResult, function(n) {
           return n.place_id;
         });
-        questionsService.saveQuestions(row.game_id, result).then(function(result) {
+
+        questionsService.saveQuestions(row.game_id, row.questions).then(function(result) {
           console.log("Questions for game #" + row.game_id + " successfully saved.");
         }, logError);
 
