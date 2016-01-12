@@ -135,6 +135,11 @@ function rename(conn, message) {
     redisService.getPlayersInRoom(room).then(function(players) {
       _.each(players, function(n) {
         conns[n].room = room;
+
+        writeService.write(conns[n], {
+          type:'player_select',
+          room: room
+        });
       });
     });
   });
