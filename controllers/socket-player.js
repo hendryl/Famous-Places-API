@@ -24,6 +24,9 @@ function handleMessage(conn, message) {
   } else if(message.type === 'continue') {
     handleContinue(conn);
 
+  } else if(message.type === 'player_create') {
+    handlePlayerCreate(conn);
+
   } else {
     writeService.writeError('Unknown message type');
   }
@@ -71,6 +74,16 @@ function handleContinue(conn) {
   var room = redisService.getRoomNameForCode(conn.room);
   var message = {
     'type': 'continue'
+  };
+
+  broadcast(room, message);
+}
+
+function handlePlayerCreate(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'player_create',
+    'player': conn.id
   };
 
   broadcast(room, message);
