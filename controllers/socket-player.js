@@ -27,7 +27,10 @@ function handleMessage(conn, message) {
   } else if(message.type === 'player_create') {
     handlePlayerCreate(conn);
 
-  } else {
+  } else if(message.type === 'player_select') {
+    handlePlayerSelect(conn, message.mode_id);
+
+  }else {
     writeService.writeError('Unknown message type');
   }
 }
@@ -87,6 +90,18 @@ function handlePlayerCreate(conn) {
   };
 
   broadcast(room, message);
+}
+
+function handlePlayerSelect(conn, mode_id) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'player_select',
+    'mode_id': mode_id
+  };
+
+  redisService.getRoomOwner(room).then(function(owner) {
+    writeService.write(conns[owner], message);
+  });
 }
 
 function disconnect(conn) {
