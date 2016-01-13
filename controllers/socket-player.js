@@ -30,7 +30,7 @@ function handleMessage(conn, message) {
   } else if(message.type === 'player_select') {
     handlePlayerSelect(conn, message.mode_id);
 
-  }else {
+  } else {
     writeService.writeError('Unknown message type');
   }
 }
