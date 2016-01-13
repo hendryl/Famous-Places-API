@@ -70,7 +70,7 @@ function getPlayersInRoom(room) {
 function createRoom(room, game_id, owner) {
   var obj = {
     'owner': owner,
-    'id': game_id,
+    'game_id': game_id,
     'inLobby': 'yes'
   };
   return client.hmsetAsync(room, obj);
