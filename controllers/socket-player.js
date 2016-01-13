@@ -24,6 +24,12 @@ function handleMessage(conn, message) {
   } else if(message.type === 'continue') {
     handleContinue(conn);
 
+  } else if(message.type === 'player_create') {
+    handlePlayerCreate(conn);
+
+  } else if(message.type === 'player_select') {
+    handlePlayerSelect(conn, message.mode_id);
+
   } else {
     writeService.writeError('Unknown message type');
   }
@@ -36,7 +42,7 @@ function handleAnswer(conn, message) {
     'lat': message.lat,
     'long': message.long,
     'round': message.round,
-    'id': conn.id
+    'player': conn.id
   };
 
   redisService.getRoomOwner(room).then(function(owner) {
@@ -74,6 +80,28 @@ function handleContinue(conn) {
   };
 
   broadcast(room, message);
+}
+
+function handlePlayerCreate(conn) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'player_create',
+    'player': conn.id
+  };
+
+  broadcast(room, message);
+}
+
+function handlePlayerSelect(conn, mode_id) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  var message = {
+    'type': 'player_select',
+    'mode_id': mode_id
+  };
+
+  redisService.getRoomOwner(room).then(function(owner) {
+    writeService.write(conns[owner], message);
+  });
 }
 
 function disconnect(conn) {

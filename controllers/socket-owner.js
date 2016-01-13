@@ -29,8 +29,11 @@ function handleMessage(conn, message) {
   } else if (message.type === 'end_round') {
     sendEndRound(conn, message.round);
 
-  } else if(message.type === 'end_score') {
+  } else if (message.type === 'end_score') {
     sendEndScore(conn, message.haveNextRound);
+
+  } else if (message.type === 'rename') {
+    rename(conn, message);
 
   } else {
     writeService.writeError(conn, 'Unknown message type');
@@ -77,12 +80,6 @@ function disconnect(conn) {
   conns[conn.id] = undefined;
 }
 
-module.exports = {
-  prepareHandler: prepareHandler,
-  handleMessage: handleMessage,
-  disconnect: disconnect
-};
-
 function sendToPlayers(conn, obj) {
   var room = redisService.getRoomNameForCode(conn.room);
 
@@ -127,3 +124,36 @@ function sendEndScore(conn, haveNextRound) {
 
   sendToPlayers(conn, obj);
 }
+
+function rename(conn, message) {
+
+  var logError = function(err) {
+    console.log(err);
+  };
+
+  var code = message.room;
+  var oldRoom = redisService.getRoomNameForCode(conn.room);
+  var newRoom = redisService.getRoomNameForCode(message.room);
+
+  redisService.renameRoom(oldRoom, newRoom).then(function() {
+    redisService.setInLobby(newRoom, 'yes');
+
+    conn.room = code;
+    redisService.getPlayersInRoom(newRoom).then(function(players) {
+      _.each(players, function(n) {
+        conns[n].room = code;
+
+        writeService.write(conns[n], {
+          type:'player_select',
+          room: code
+        });
+      });
+    }, logError);
+  }, logError);
+}
+
+module.exports = {
+  prepareHandler: prepareHandler,
+  handleMessage: handleMessage,
+  disconnect: disconnect
+};
