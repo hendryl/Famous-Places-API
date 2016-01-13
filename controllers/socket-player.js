@@ -193,9 +193,13 @@ function joinRoom(conn, room, player) {
     conn.room = room.substring(5);
     conn.role = 'player';
     conn.player = player;
-    writeService.write(conn, {
-      type: 'join_room',
-      result: true
+
+    redisService.getGameId(room).then(function(res) {
+      writeService.write(conn, {
+        type: 'join_room',
+        result: true,
+        game_id: res
+      });
     });
 
     redisService.getRoomOwner(room).then(function(owner) {
