@@ -42,7 +42,7 @@ function handleAnswer(conn, message) {
     'lat': message.lat,
     'long': message.long,
     'round': message.round,
-    'id': conn.id
+    'player': conn.id
   };
 
   redisService.getRoomOwner(room).then(function(owner) {
