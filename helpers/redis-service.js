@@ -166,6 +166,7 @@ module.exports = {
   getRoomOwner: getRoomOwner,
   getPlayersInRoom: getPlayersInRoom,
   getGameId: getGameId,
+  setGameId: setGameId,
   isInLobby: isInLobby,
   setInLobby: setInLobby,
   createRoom: createRoom,
