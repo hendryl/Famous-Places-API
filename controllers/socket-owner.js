@@ -127,7 +127,6 @@ function sendEndScore(conn, haveNextRound) {
 }
 
 function rename(conn, message) {
-
   var logError = function(err) {
     console.log(err);
   };
@@ -135,9 +134,11 @@ function rename(conn, message) {
   var code = message.room;
   var oldRoom = redisService.getRoomNameForCode(conn.room);
   var newRoom = redisService.getRoomNameForCode(message.room);
+  var game_id = message.game_id;
 
   redisService.renameRoom(oldRoom, newRoom).then(function() {
     redisService.setInLobby(newRoom, 'yes');
+    redisService.setGameId(newRoom, message.game_id);
 
     conn.room = code;
     redisService.getPlayersInRoom(newRoom).then(function(players) {
