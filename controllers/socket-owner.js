@@ -50,7 +50,7 @@ function createRoom(conn, message) {
       type: 'create_room',
       result: true
     });
-    conn.room = code;
+    conn.room = message.name;
 
   }).catch(function(err) {
     writeService.writeError(conn, err);
@@ -138,7 +138,7 @@ function rename(conn, message) {
 
   redisService.renameRoom(oldRoom, newRoom).then(function() {
     redisService.setInLobby(newRoom, 'yes');
-    redisService.setGameId(newRoom, message.game_id);
+    redisService.setGameId(newRoom, game_id);
 
     conn.room = code;
     redisService.getPlayersInRoom(newRoom).then(function(players) {
