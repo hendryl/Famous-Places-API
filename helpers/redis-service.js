@@ -67,6 +67,14 @@ function getPlayersInRoom(room) {
   });
 }
 
+function getGameId(room) {
+  return client.hgetAsync(room, 'game_id');
+}
+
+function setGameId(room, value) {
+  client.hset(room, 'game_id', value);
+}
+
 function createRoom(room, game_id, owner) {
   var obj = {
     'owner': owner,
@@ -157,6 +165,7 @@ module.exports = {
   getRoomList: getRoomList,
   getRoomOwner: getRoomOwner,
   getPlayersInRoom: getPlayersInRoom,
+  getGameId: getGameId,
   isInLobby: isInLobby,
   setInLobby: setInLobby,
   createRoom: createRoom,
