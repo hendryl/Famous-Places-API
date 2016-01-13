@@ -15,7 +15,7 @@ function handleMessage(conn, message) {
 
   } else if (message.type === 'create_room') {
     conn.role = 'owner';
-    createRoom(conn, message.name);
+    createRoom(conn, message);
 
   } else if (message.type === 'delete_room') {
     disconnect(conn);
@@ -40,11 +40,12 @@ function handleMessage(conn, message) {
   }
 }
 
-function createRoom(conn, code) {
-  var room = redisService.getRoomNameForCode(code);
+function createRoom(conn, message) {
+  var room = redisService.getRoomNameForCode(message.name);
   var owner = conn.id;
+  var game_id = message.game_id;
 
-  redisService.createRoom(room, owner).then(function(res) {
+  redisService.createRoom(room, game_id, owner).then(function(res) {
     writeService.write(conn, {
       type: 'create_room',
       result: true
