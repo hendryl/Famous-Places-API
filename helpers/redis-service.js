@@ -144,10 +144,7 @@ function leaveRoom(room, player) {
   });
 }
 
-function renameRoom(oldCode, newCode) {
-  var oldName = getRoomNameForCode(oldCode);
-  var newName = getRoomNameForCode(newCode);
-
+function renameRoom(oldName, newName) {
   return client.renameAsync(oldName, newName);
 }
 

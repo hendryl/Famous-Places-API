@@ -126,23 +126,30 @@ function sendEndScore(conn, haveNextRound) {
 }
 
 function rename(conn, message) {
-  var room = message.room;
 
-  redisService.renameRoom(conn.room, room).then(function() {
-    redisService.setInLobby(room, 'yes');
+  var logError = function(err) {
+    console.log(err);
+  };
 
-    conn.room = room;
-    redisService.getPlayersInRoom(room).then(function(players) {
+  var code = message.room;
+  var oldRoom = redisService.getRoomNameForCode(conn.room);
+  var newRoom = redisService.getRoomNameForCode(message.room);
+
+  redisService.renameRoom(oldRoom, newRoom).then(function() {
+    redisService.setInLobby(newRoom, 'yes');
+
+    conn.room = code;
+    redisService.getPlayersInRoom(newRoom).then(function(players) {
       _.each(players, function(n) {
-        conns[n].room = room;
+        conns[n].room = code;
 
         writeService.write(conns[n], {
           type:'player_select',
-          room: room
+          room: code
         });
       });
-    });
-  });
+    }, logError);
+  }, logError);
 }
 
 module.exports = {
