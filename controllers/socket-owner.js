@@ -15,7 +15,7 @@ function handleMessage(conn, message) {
 
   } else if (message.type === 'create_room') {
     conn.role = 'owner';
-    createRoom(conn, message.name);
+    createRoom(conn, message);
 
   } else if (message.type === 'delete_room') {
     disconnect(conn);
@@ -40,16 +40,17 @@ function handleMessage(conn, message) {
   }
 }
 
-function createRoom(conn, code) {
-  var room = redisService.getRoomNameForCode(code);
+function createRoom(conn, message) {
+  var room = redisService.getRoomNameForCode(message.name);
   var owner = conn.id;
+  var game_id = message.game_id;
 
-  redisService.createRoom(room, owner).then(function(res) {
+  redisService.createRoom(room, game_id, owner).then(function(res) {
     writeService.write(conn, {
       type: 'create_room',
       result: true
     });
-    conn.room = code;
+    conn.room = message.name;
 
   }).catch(function(err) {
     writeService.writeError(conn, err);
@@ -126,7 +127,6 @@ function sendEndScore(conn, haveNextRound) {
 }
 
 function rename(conn, message) {
-
   var logError = function(err) {
     console.log(err);
   };
@@ -134,9 +134,11 @@ function rename(conn, message) {
   var code = message.room;
   var oldRoom = redisService.getRoomNameForCode(conn.room);
   var newRoom = redisService.getRoomNameForCode(message.room);
+  var game_id = message.game_id;
 
   redisService.renameRoom(oldRoom, newRoom).then(function() {
     redisService.setInLobby(newRoom, 'yes');
+    redisService.setGameId(newRoom, game_id);
 
     conn.room = code;
     redisService.getPlayersInRoom(newRoom).then(function(players) {
