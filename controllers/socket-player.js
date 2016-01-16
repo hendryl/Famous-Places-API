@@ -33,6 +33,8 @@ function handleMessage(conn, message) {
   } else {
     writeService.writeError('Unknown message type');
   }
+
+  console.log('received a player message of type: ' + message.type);
 }
 
 function handleAnswer(conn, message) {

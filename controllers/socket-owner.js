@@ -38,6 +38,8 @@ function handleMessage(conn, message) {
   } else {
     writeService.writeError(conn, 'Unknown message type');
   }
+
+  console.log('received an owner message of type: ' + message.type);
 }
 
 function createRoom(conn, message) {
@@ -86,9 +88,12 @@ function sendToPlayers(conn, obj) {
 
   redisService.getPlayersInRoom(room).then(function(players) {
     _.each(players, function(n) {
+      console.log('send to player ' + n);
       writeService.write(conns[n], obj);
     });
   });
+
+  console.log(room + ' done sending to players');
 }
 
 function sendGameReady(conn) {
