@@ -68,7 +68,7 @@ function createSubquery(values) {
             if (atLeastOneSub) {
               subquery += 'AND ';
             }
-            subquery += 'places.place_id in (' + countryQuery + ')';
+            subquery += 'places.country_id in (' + countryQuery + ')';
           }
         }
 
