@@ -14,7 +14,7 @@ function handleMessage(conn, message) {
     writeService.writeError(conn);
 
   } else if(message.type === 'ack') {
-    console.log('owner successfully received message');
+    gotMessage(conn, message);
 
   } else if (message.type === 'create_room') {
     conn.role = 'owner';
@@ -43,6 +43,11 @@ function handleMessage(conn, message) {
   }
 
   console.log('received an owner message of type: ' + message.type);
+}
+
+function gotMessage(conn, message) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  console.log('Owner of ' + room + ' successfully received message');
 }
 
 function createRoom(conn, message) {

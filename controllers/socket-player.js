@@ -13,7 +13,7 @@ function handleMessage(conn, message) {
     writeService.writeError(conn);
 
   } else if(message.type === 'ack') {
-    console.log('player successfully received message');
+    gotMessage(conn, message);
 
   } else if (message.type === 'join_room') {
     joinRoomWrapper(conn, message.name, message.player);
@@ -38,6 +38,11 @@ function handleMessage(conn, message) {
   }
 
   console.log('received a player message of type: ' + message.type);
+}
+
+function gotMessage(conn, message) {
+  var room = redisService.getRoomNameForCode(conn.room);
+  console.log('Player of ' + room + ' with the id ' + conn.id + ' successfully received message');
 }
 
 function handleAnswer(conn, message) {
