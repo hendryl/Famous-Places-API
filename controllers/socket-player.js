@@ -12,6 +12,9 @@ function handleMessage(conn, message) {
   if (message.type == null) {
     writeService.writeError(conn);
 
+  } else if(message.type === 'ack') {
+    console.log('player successfully received message');
+
   } else if (message.type === 'join_room') {
     joinRoomWrapper(conn, message.name, message.player);
 

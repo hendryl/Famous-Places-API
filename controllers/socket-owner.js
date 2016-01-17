@@ -13,6 +13,9 @@ function handleMessage(conn, message) {
   if (message.type == null) {
     writeService.writeError(conn);
 
+  } else if(message.type === 'ack') {
+    console.log('owner successfully received message');
+
   } else if (message.type === 'create_room') {
     conn.role = 'owner';
     createRoom(conn, message);
